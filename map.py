@@ -1,5 +1,6 @@
 import plotly.express as px
 import plotly.graph_objects as go
+
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
@@ -101,3 +102,81 @@ def calculateDistances():
 randomlists = ["ALX", "BKC", "BKG", "HOT", "LFI", "MLL", "PBF", "TUP"]
 drawMultipleLines(randomlists)
 calculateDistances()
+
+earthRadius = 6378
+
+def geodesicDistance():
+    
+    NYC_row = getJFK().iloc[0]
+    NYC_lon = NYC_row["lon"]
+    NYC_lat = NYC_row["lat"]
+    distance_np = np.array([])
+    
+    for i in range(len(file)):
+        thisAirport = file.iloc[i] 
+        deltaLon = thisAirport["lon"] - NYC_lon
+        deltaLat = thisAirport["lat"] - NYC_lat
+        midPointLat =  (thisAirport["lat"] + NYC_lat )/ 2
+        
+        distance = earthRadius * math.sqrt((2 * math.sin(deltaLat / 2) * math.cos(deltaLon/2))**2 + (2 * math.cos(midPointLat) * math.sin(deltaLon/2))**2)
+        distance_np = np.append(distance_np, distance)
+    
+    plt.figure(figsize=(10, 6))
+    plt.title('Distribution of the distances to John F. Kennedy Airport')
+    sns.histplot(data = distance_np, binrange=[min(distance_np), max(distance_np)])
+    plt.xlabel('Distances')
+    plt.ylabel('Frequency')
+    plt.show()
+    
+    return
+
+def analyzeTimeZone():
+
+    tz_file = file.dropna(subset=['tz'])
+
+    fig = px.scatter_geo(tz_file, hover_name="name", lat="lat", lon="lon", color="tz")
+    fig.show()
+    
+    return
+
+geodesicDistance()
+analyzeTimeZone()
+
+# def getCity():
+
+#     cityList = []
+    
+#     for i in range(len(file)):
+#         thisAirport = file.iloc[i]
+        
+#         if (pd.isnull(thisAirport['tzone'])):
+#             city = thisAirport['tzone']
+#         else:
+#             city = thisAirport['tzone'].split('/')[1]
+#             city = city.replace('_',' ')   
+             
+#         cityList.append(city)
+    
+#     newFile = file.assign(citys = cityList)
+#     newFile = newFile.dropna(subset=['citys'])
+    
+#     statesFile = pd.read_csv("states.csv")
+#     abbrevList = []
+    
+#     for i in range(len(newFile)):
+#         thisAirport = newFile.iloc[i]
+        
+#         for j in range(len(statesFile)):
+#             if (thisAirport['citys'] == statesFile.iloc[j]['State']):
+#                 abbrev = statesFile.iloc[j]['Abbreviation']
+#                 break
+        
+#         abbrevList.append(abbrev)
+    
+#     newFile = newFile.assign(abbrevs = abbrevList)
+    
+#     print(newFile)
+    
+#     return
+
+# getCity()
