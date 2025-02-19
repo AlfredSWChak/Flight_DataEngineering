@@ -99,9 +99,8 @@ def calculateDistances():
     plt.show()
     return
 
-randomlists = ["ALX", "BKC", "BKG", "HOT", "LFI", "MLL", "PBF", "TUP"]
-drawMultipleLines(randomlists)
-calculateDistances()
+# randomlists = ["ALX", "BKC", "BKG", "HOT", "LFI", "MLL", "PBF", "TUP"]
+# drawMultipleLines(randomlists)
 
 earthRadius = 6378
 
@@ -138,9 +137,6 @@ def analyzeTimeZone():
     fig.show()
     
     return
-
-geodesicDistance()
-analyzeTimeZone()
 
 # def getCity():
 
