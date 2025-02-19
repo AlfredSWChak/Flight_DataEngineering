@@ -1,7 +1,5 @@
 # Flight_DataEngineering
 
-# Flight Information Visualization
-
 ## Project Overview
 This project visualizes airport data and flight information using `plotly.express` and `plotly.graph_objects`. The dataset consists of airport locations, altitudes, and time zones, and is used to generate various visualizations, including:
 
@@ -36,3 +34,33 @@ This project is part of a larger effort to monitor and analyze flight data, leve
 Ensure you have the required libraries installed before running the script:
 ```sh
 pip install pandas numpy plotly matplotlib seaborn
+
+
+
+
+
+
+## Running the Script
+
+Execute the script to generate all visualizations:
+  python flights.py
+
+## Example Usage
+Visualizing Flight Paths:
+  from flights import drawMultipleLines
+  drawMultipleLines(["LAX", "ORD", "CDG"])
+
+Calculating Distances:
+  from flights import calculateDistances, geodesicDistance
+  calculateDistances()
+  geodesicDistance()
+
+
+## Future Enhancements
+- Integrating flight data from a database.
+- Adding real-time flight tracking.
+- Improving visualization aesthetics.
+
+## Contributors
+Group FLights 10
+Lan, Alfred, Adele, Duncan
