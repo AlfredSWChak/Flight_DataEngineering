@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import math
 
-file = pd.read_csv("airports.csv")
+file = pd.read_csv("airports_original.csv")
         
 # fig = px.scatter_geo(file, hover_name="name", lat="lat", lon = "lon", color="alt")
 fig = px.scatter_geo()
