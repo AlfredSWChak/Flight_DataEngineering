@@ -40,7 +40,7 @@ def drawLine(inputFAA, fig):
     fig.show()
     return fig
 
-def drawMultipleLines(faaList):
+def drawMultipleLines(faaList, month, day, origin_faa):
     
     new_df = pd.DataFrame(columns = ["faa", "name", "lat", "lon", "alt", "tz", "dst", "tzone"])
     
@@ -54,19 +54,21 @@ def drawMultipleLines(faaList):
                 input_lon = file.iloc[j] ["lon"]
                 new_df.loc[j] = file.iloc[j]
     
-    NYC_row = getJFK().iloc[0]
-    NYC_lon = NYC_row["lon"]
-    NYC_lat = NYC_row["lat"]
-    new_df.loc[getJFK().index[0]] = NYC_row
+    origin_row = getAirportRow(origin_faa).iloc[0]
+    # NYC_row = getJFK().iloc[0]
+    origin_lon = origin_row["lon"]
+    origin_lat = origin_row["lat"]
+    new_df.loc[origin_row.index[0]] = origin_row
     
     fig = px.scatter_geo(new_df, hover_name="name", lat="lat", lon="lon", color="alt", text="faa")  
     
     for i in range(len(new_df) - 1):
         input_lon = new_df.iloc[i]["lon"]
         input_lat = new_df.iloc[i]["lat"]
-        fig.add_trace(go.Scattergeo(locationmode = 'USA-states',lon = [input_lon, NYC_lon], lat = [input_lat, NYC_lat], mode = "lines", line = dict(width = 1,color = 'red'), opacity = 1))
+        fig.add_trace(go.Scattergeo(locationmode = 'USA-states',lon = [input_lon, origin_lon], lat = [input_lat, origin_lat], mode = "lines", line = dict(width = 1,color = 'red'), opacity = 1))
     
     fig.update_layout(title_text = 'Flights to New York from specific locations', showlegend = False)
+    fig.update_layout(title = 'Map of Flight from ' + origin_faa + ' on ' + str(day) + '/' + str(month) ,geo_scope="usa")
     fig.show()
     return
 
@@ -78,6 +80,15 @@ def getJFK():
             JFK_df.loc[i] = file.iloc[i]  
     
     return JFK_df
+
+def getAirportRow(airport):
+    airport_row = pd.DataFrame(columns = ["faa", "name", "lat", "lon", "alt", "tz", "dst", "tzone"])
+    
+    for i in range(len(file)):
+        if (file["faa"][i] == airport):
+            airport_row.loc[i] = file.iloc[i]  
+    
+    return airport_row
 
 def calculateDistances():
     
