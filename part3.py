@@ -155,5 +155,39 @@ def printPlanesStatistics(origin, dest):
     planes_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
     
     uniqueTypes_df = planes_df.drop_duplicates(subset=['type', 'manufacturer','model', 'engines', 'seats', 'engine'])
+    
+    numPlanesList = []
+    
+    for i in range(len(uniqueTypes_df)):  
+        counter = 0
+        this = uniqueTypes_df.iloc[i]
+        this.drop(columns =['tailnum'])
+        
+        # print(this)
+        
+        for j in range(len(flights_df)):
+            this_tailnum = flights_df['tailnum'][j]
+            
+            for k in range(len(planes_df)):
+                if(planes_df['tailnum'][k] == this_tailnum):
+                    plane_row = planes_df.iloc[k]
+                    
+                    break
+            
+            plane_row.drop(columns = ['tailnum'])
+            
+            # print(plane_row)
+            
+            if(list(this) == list(plane_row)):
+                counter = counter + 1    
+            
+        numPlanesList.append(counter)
+    
+    uniqueTypes_df = uniqueTypes_df.assign(flights = numPlanesList)
+    uniqueTypes_df.drop(columns = ['tailnum'])
+    
+    
+    print('There are '+str(len(uniqueTypes_df))+' plane types were used from'+origin+'to'+dest+'. Details are shown below:')
+    print(uniqueTypes_df)
         
     return
