@@ -16,8 +16,14 @@ pt3.getTable_Smaller("weather","visib",1.0)
 
 # Only 3 options :['EWR', 'LGA', 'JFK']
 # Input parameters: [month, day, origin]
-# pt3.printFlightsOnDateAtAirport(2, 21, 'LGA') 
+pt3.printFlightsOnDateAtAirport(2, 21, 'LGA') 
 
-# pt3.printStatisticsOnDateAtAirport(2, 22, 'JFK')
+pt3.printStatisticsOnDateAtAirport(2, 22, 'JFK')
 
 pt3.printPlanesStatistics('JFK','ATL')
+
+pt3.arrivalDelayPlot()
+
+pt3.departureDelayPlot()
+
+pt3.amongOfDelayFlights(7, 9, 'FLL')
