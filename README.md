@@ -11,7 +11,18 @@ This project visualizes airport data and flight information using `plotly.expres
 
 This project is part of a larger effort to monitor and analyze flight data, leveraging `pandas`, `numpy`, `plotly`, `seaborn`, and `matplotlib` for data processing and visualization.
 
-## Features
+## Part 1: 📂Project Structure
+
+📂flight-monitoring
+|—— 📜 README.md                      # Documentation file                       
+|—— 📜 part1.py                       # Flight visualizations (Plotly)
+|—— 📜 part3.py                       # Database queries (SQLite)
+|—— 📜 core.py 
+|—— 📜 flights_database.db            # SQLite database
+|—— 📜 airports_original.csv          # Airport database
+|—— 📜 to be continue
+
+## Part * : ✈️ Features
 ### 1. Airport Maps
 - **Global Airport Map**: Plots all airports from the dataset.
 - **US Airport Map**: Filters and displays only US airports.
@@ -64,4 +75,29 @@ Calculating Distances:
 ## Contributors
 Group FLights 10
 Lan, Alfred, Adele, Duncan
+```
+## Part *: Database Queries 
 
+Goal: Use ```flights_database.db``` to provide SQL query functionality, implementling the following tasks:
+
+## Part *: Data Analysis Tasks
+
+| Task | Implementation | Code Location |
+|------|--------------|--------------|
+| **Global airport map** | Plotly `scatter_geo()` | `part1.py` |
+| **US-only airport map** | Filter `airports_original.csv` data | `part1.py` |
+| **Draw JFK to a single airport route** | `drawLine(faa)` | `part1.py` |
+| **Draw JFK to multiple airports routes** | `drawMultipleLines(faaList, month, day, origin_faa)` | `part1.py` |
+| **Compute Euclidean distance** | `calculateDistances()` | `part1.py` |
+| **Compute geodesic (spherical) distance** | `geodesicDistance()` | `part1.py` |
+| **Analyze airport time zones** | `analyzeTimeZone()` | `part1.py` |
+| **Query database tables** | `getTable(input)` | `part2.py` |
+| **Export database tables to CSV** | `export(table_name)` | `part2.py` |
+| **Retrieve flights on a specific date** | `printFlightsOnDateAtAirport(month, day, airport)` | `part2.py` |
+| **Analyze flight statistics for a date** | `printStatisticsOnDateAtAirport(month, day, airport)` | `part2.py` |
+| **Analyze aircraft models for a route** | `printPlanesStatistics(origin, dest)` | `part2.py` |
+
+## Future Enhancements
+
+## References
+Plotly Documentation
