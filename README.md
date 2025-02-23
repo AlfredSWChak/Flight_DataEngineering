@@ -12,16 +12,16 @@ This project visualizes airport data and flight information using `plotly.expres
 This project is part of a larger effort to monitor and analyze flight data, leveraging `pandas`, `numpy`, `plotly`, `seaborn`, and `matplotlib` for data processing and visualization.
 
 ## Part 1: 📂Project Structure
-
-📂flight-monitoring
-|—— 📜 README.md                      # Documentation file                       
-|—— 📜 part1.py                       # Flight visualizations (Plotly)
-|—— 📜 part3.py                       # Database queries (SQLite)
-|—— 📜 core.py 
-|—— 📜 flights_database.db            # SQLite database
-|—— 📜 airports_original.csv          # Airport database
-|—— 📜 to be continue
-
+```
+📂 flight-monitoring
+│── 📜 README.md                 # Documentation file  
+│── 📜 part1.py                  # Flight visualizations (Plotly)  
+│── 📜 part3.py                  # Database queries (SQLite)  
+│── 📜 core.py                   # Core functions  
+│── 📜 flights_database.db       # SQLite database  
+│── 📜 airports_original.csv     # Airport dataset  
+│── 📜 (More files coming...)  
+```
 ## Part * : ✈️ Features
 ### 1. Airport Maps
 - **Global Airport Map**: Plots all airports from the dataset.
