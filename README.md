@@ -11,7 +11,7 @@ This project visualizes airport data and flight information using `plotly.expres
 
 This project is part of a larger effort to monitor and analyze flight data, leveraging `pandas`, `numpy`, `plotly`, `seaborn`, and `matplotlib` for data processing and visualization.
 
-## Part 1: 📂Project Structure
+## Project Structure
 ```
 📂 flight-monitoring
 │── 📜 README.md                 # Documentation file  
@@ -22,7 +22,7 @@ This project is part of a larger effort to monitor and analyze flight data, leve
 │── 📜 airports_original.csv     # Airport dataset  
 │── 📜 (More files coming...)  
 ```
-## Part * : ✈️ Features
+## Features
 ### 1. Airport Maps
 - **Global Airport Map**: Plots all airports from the dataset.
 - **US Airport Map**: Filters and displays only US airports.
@@ -40,64 +40,79 @@ This project is part of a larger effort to monitor and analyze flight data, leve
 ### 4. Time Zone Analysis
 - **Time Zone Graph**: Analyzes and visualizes airports based on their time zones.
 
+### 5. Databse Queries
+- ** Retrieve flight data: Query flights based on various parameters.
+- ** Analyze airline operations: Investigate departure trends delays.
+- ** Aircraft model insights: Assess aircraft usage for different rountes.
+- ** Flight trajectory analysis: Determine how many times each plane type was used for a specific route.
+- ** Airline delay analysis: Compute the average departure delay per airline and visualize in a bar plot.
+- ** Delay flight analysis: Retrieve the numberof delayed flights for a given range of months and destination.
+- ** Top airplane manufacturers: Identidy the top 5 airplane manufacturers for flights departing to a specified destination.
+
 ## Usage
 ### Dependencies
 Ensure you have the required libraries installed before running the script:
 ```sh
 pip install pandas numpy plotly matplotlib seaborn
-
-
-
-
-
+```
 
 ## Running the Script
 
 Execute the script to generate all visualizations:
+```sh
   python flights.py
+```
 
 ## Example Usage
 Visualizing Flight Paths:
-  from flights import drawMultipleLines
-  drawMultipleLines(["LAX", "ORD", "CDG"])
-
+```sh
+  from part1 import drawMultipleLines
+  drawMultipleLines(["LAX", "ORD", "CDG"], month = 1, day = 1, origin_faa = "JFK")
+```
 Calculating Distances:
+```sh
   from flights import calculateDistances, geodesicDistance
   calculateDistances()
   geodesicDistance()
-
-
-## Future Enhancements
-- Integrating flight data from a database.
-- Adding real-time flight tracking.
-- Improving visualization aesthetics.
-
-## Contributors
-Group FLights 10
-Lan, Alfred, Adele, Duncan
 ```
-## Part *: Database Queries 
+## Database Queries 
 
-Goal: Use ```flights_database.db``` to provide SQL query functionality, implementling the following tasks:
-
-## Part *: Data Analysis Tasks
+This project includes an SQLite database (```flights_database.db```) that provide SQL query functionality, the following table summarizes the implemented tasks:
 
 | Task | Implementation | Code Location |
 |------|--------------|--------------|
 | **Global airport map** | Plotly `scatter_geo()` | `part1.py` |
 | **US-only airport map** | Filter `airports_original.csv` data | `part1.py` |
-| **Draw JFK to a single airport route** | `drawLine(faa)` | `part1.py` |
-| **Draw JFK to multiple airports routes** | `drawMultipleLines(faaList, month, day, origin_faa)` | `part1.py` |
-| **Compute Euclidean distance** | `calculateDistances()` | `part1.py` |
-| **Compute geodesic (spherical) distance** | `geodesicDistance()` | `part1.py` |
-| **Analyze airport time zones** | `analyzeTimeZone()` | `part1.py` |
+| **Flight route(JFK to a single airport)** | `drawLine(faa)` | `part1.py` |
+| **Flight route(JFK to multiple airports)** | `drawMultipleLines(faaList, month, day, origin_faa)` | `part1.py` |
+| **Euclidean distance calculation** | `calculateDistances()` | `part1.py` |
+| **Geodesic distance calculation** | `geodesicDistance()` | `part1.py` |
+| **Time zones analysis** | `analyzeTimeZone()` | `part1.py` |
 | **Query database tables** | `getTable(input)` | `part2.py` |
 | **Export database tables to CSV** | `export(table_name)` | `part2.py` |
 | **Retrieve flights on a specific date** | `printFlightsOnDateAtAirport(month, day, airport)` | `part2.py` |
 | **Analyze flight statistics for a date** | `printStatisticsOnDateAtAirport(month, day, airport)` | `part2.py` |
-| **Analyze aircraft models for a route** | `printPlanesStatistics(origin, dest)` | `part2.py` |
+| **Analyze aircraft models for routes** | `printPlanesStatistics(origin, dest)` | `part2.py` |
+| **Retrieve all table names** | `showAllTableNames()` | `part2.py`|
+| **Fliter data based on conditions** | `getTable_Equal()`, `getTable_Larger()`, `getTable_Smaller()` | `part2.py`|
+| **Flight trajectory analysis** | `getPlaneTypesForRoute(origin, dest)` | `part2.py`|
+| **Airline delay analysis** | `computeAverageDepartureDelay()` | `part2.py`
+| **Delayed flight analysis** | `getDelayedFlights(month_range, destination)`| `part2.py`|
+| **Top airplane manufacturers** | `getTopManufacturers(destination)`| `part2.py`|
 
 ## Future Enhancements
+- Integrating flight data of real-time data.
+- Improving visualization aesthetics.
+- Enhanced database queries and analytics.
+- Flight delay predictions.
+- Expanded analysis on weather impact on flights.
+
+## Contributors
+Group FLights 10
+Lan, Alfred, Adele, Duncan
+```
 
 ## References
 Plotly Documentation
+SQLite Documentation
+Seaborn Visualization Guide
