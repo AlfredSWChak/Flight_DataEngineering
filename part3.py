@@ -2,6 +2,7 @@ import sqlite3
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+import math
 import seaborn as sns
 import part1 as pt1
 
@@ -355,6 +356,38 @@ def planes_speed():
 
     connection.commit()
     
-planes_speed()
-export("planes")
+    export("planes")
+    
+def compute_wind_direction_from_NYC():
+    
+    query = f'SELECT faa, lat, lon FROM airports'
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    
+    JFK = pt1.getJFK()
+    NYC_lat = JFK['lat']
+    NYC_lon = JFK['lon']
+    wind_array = []
+    
+    for i in range(len(df)):
+        this_lat = df['lat'][i]
+        this_lon = df['lon'][i]
+        
+        if(df['faa'][i] != 'JFK'):
+            delta_lon = abs(this_lon - NYC_lon)
+            x = float(math.cos(NYC_lat) * math.sin(delta_lon))
+            y = float(math.cos(this_lat) * math.sin(NYC_lat) - math.sin(this_lat) * math.cos(NYC_lat) * math.cos(delta_lon))
+        
+            angle = math.degrees(math.atan(y/x))
+            wind_array.append(angle)
+        else:
+            wind_array.append(None)
+        
+    new_df = df.assign(wind_direction = wind_array)
+    
+    print(new_df)       
+        
+    return
+
 
