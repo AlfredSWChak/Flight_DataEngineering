@@ -15,7 +15,10 @@ def getTable(input):
     tableName = str(input)
     query = f'SELECT * FROM [{tableName}]'
     cursor.execute(query)
-    return
+    rows = cursor.fetchall()
+    all = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    
+    return all
     
 def getTable_Equal(table, column, faa):
     
@@ -390,4 +393,22 @@ def compute_wind_direction_from_NYC():
         
     return
 
+
+def unique_depart_airports():
+    
+    query = f'SELECT origin FROM flights'
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    origin_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    
+    origin_df_list = origin_df.drop_duplicates()['origin'].tolist()
+    
+    query = f'SELECT * FROM airports WHERE faa IN ({','.join(['?']*len(origin_df_list))})'
+    cursor.execute(query, origin_df_list)
+    rows = cursor.fetchall()
+    airports_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+       
+    print(airports_df)
+    
+    return
 

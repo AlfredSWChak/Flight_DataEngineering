@@ -1,18 +1,21 @@
 import part1 as pt1
 import part3 as pt3
+import part4 as pt4
 
 # functions that can be used to access the database in specific column
-pt3.getTable_Equal("airports","faa","JFK")
+# pt3.getTable_Equal("airports","faa","JFK")
 # pt3.printTable()
 
-pt3.getTable_Larger("flights","distance",2000)
+# pt3.getTable_Larger("flights","distance",2000)
 # pt3.printTable()
 
-pt3.getTable_Larger("planes","seats",200)
+# pt3.getTable_Larger("planes","seats",200)
 # pt3.printTable()
 
-pt3.getTable_Smaller("weather","visib",1.0)
+# pt3.getTable_Smaller("weather","visib",1.0)
 # pt3.printTable()
+
+# pt3.unique_depart_airports()
 
 # Only 3 options :['EWR', 'LGA', 'JFK']
 # Input parameters: [month, day, origin]
@@ -30,4 +33,12 @@ pt3.getTable_Smaller("weather","visib",1.0)
 
 # pt3.planes_speed()
 
-pt3.compute_wind_direction_from_NYC()
+# pt3.compute_wind_direction_from_NYC()
+
+# pt4.check_na_flights()
+
+# pt4.drop_duplicates_except(['flight'])
+
+# pt4.convert_datetime()
+
+# pt4.local_arrival_time()
