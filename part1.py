@@ -108,7 +108,7 @@ def calculateDistances():
     plt.xlabel('Distances')
     plt.ylabel('Frequency')
     plt.show()
-    return
+    return distance_np
 
 # randomlists = ["ALX", "BKC", "BKG", "HOT", "LFI", "MLL", "PBF", "TUP"]
 # drawMultipleLines(randomlists)
@@ -124,11 +124,11 @@ def geodesicDistance():
     
     for i in range(len(file)):
         thisAirport = file.iloc[i] 
-        deltaLon = thisAirport["lon"] - NYC_lon
-        deltaLat = thisAirport["lat"] - NYC_lat
-        midPointLat =  (thisAirport["lat"] + NYC_lat )/ 2
+        deltaLon = math.radians(thisAirport["lon"] - NYC_lon)
+        deltaLat = math.radians(thisAirport["lat"] - NYC_lat)
+        midPointLat =  math.radians((thisAirport["lat"] + NYC_lat ) / 2)
         
-        distance = earthRadius * math.sqrt((2 * math.sin(deltaLat / 2) * math.cos(deltaLon/2))**2 + (2 * math.cos(midPointLat) * math.sin(deltaLon/2))**2)
+        distance = earthRadius * math.sqrt((2 * math.sin(deltaLat/2) * math.cos(deltaLon/2))**2 + (2 * math.cos(midPointLat) * math.sin(deltaLon/2))**2)
         distance_np = np.append(distance_np, distance)
     
     plt.figure(figsize=(10, 6))
@@ -138,7 +138,7 @@ def geodesicDistance():
     plt.ylabel('Frequency')
     plt.show()
     
-    return
+    return distance_np
 
 def analyzeTimeZone():
 
