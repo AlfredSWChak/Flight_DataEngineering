@@ -35,6 +35,8 @@ def drop_duplicates_except(except_list):
 
     return
 
+
+## Convert data time
 def convert_datetime():
     
     query = f'SELECT year, month, day, dep_time, sched_dep_time, arr_time, sched_arr_time FROM flights'
