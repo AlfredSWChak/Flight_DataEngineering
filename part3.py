@@ -84,7 +84,7 @@ def showAllTableNames():
     
 def printFlightsOnDateAtAirport(month, day, airport):
     
-    query = f'SELECT month, day, origin, dest FROM flights WHERE month = ? AND day = ? AND origin = ?'
+    query = f'SELECT month, day, origin, dest, distance FROM flights WHERE month = ? AND day = ? AND origin = ?'
     cursor.execute(query, [month, day, airport])
     
     rows = cursor.fetchall()
@@ -93,6 +93,10 @@ def printFlightsOnDateAtAirport(month, day, airport):
     destinationList = new_df['dest']
     
     pt1.drawMultipleLines(destinationList, month, day, airport)
+    
+    print('There are '+str(len(new_df))+' flights departed from '+airport+' airport on '+ str(day)+'/'+str(month)+'.')
+    
+    plot_histogram(new_df, 'distance')
     
     return
 
@@ -267,9 +271,6 @@ def departureDelayPlot():
         new_df = new_df.dropna(subset=['dep_delay'])
         
         avg_delay = np.average(list(new_df['dep_delay']))
-        
-
-
         avgDelayList.append(avg_delay)
         
     airlines_df = airlines_df.assign(avg_delay = avgDelayList)
@@ -279,7 +280,7 @@ def departureDelayPlot():
     plt.rcParams["axes.labelsize"] = 12
     plt.rcParams["xtick.labelsize"] = 6
     plt.title('Average departure delay per flight for each of the airlines')
-    sns.barplot(airlines_df, x = 'name', y = 'avg_delay', hue='avg_delay')
+    sns.barplot(airlines_df, x = 'name', y = 'avg_delay', hue='avg_delay', palette='Blues_d')
     plt.xlabel('Airlines names')
     plt.xticks(rotation=45)
     plt.ylabel('Departure Delay Time')
@@ -296,7 +297,7 @@ def arrivalDelayPlot():
     
     plt.figure(figsize=(10, 6))
     plt.title('The relationship between the distance of a flight and the arrival delay time')
-    sns.scatterplot(df, x='distance', y='arr_delay', size='arr_delay', sizes=(1, 100), hue='arr_delay')
+    sns.scatterplot(df, x='distance', y='arr_delay', size='arr_delay', sizes=(1, 100), hue='arr_delay', palette='Reds')
     plt.xlabel('Distances')
     plt.ylabel('Arrival Delay Time')
     plt.show()
@@ -412,3 +413,90 @@ def unique_depart_airports():
     
     return
 
+def barplot_frequency(table, column):
+    
+    # table = input('Enter the table name:')
+    # column = input('Enter the column name:')
+    
+    table_df = getTable(table)
+    unique_values = table_df[column].unique()
+    unique_counts = []
+    
+    for value in unique_values:
+        counter = 0
+        counter = table_df[column].value_counts().get(value, 0)
+        unique_counts.append(counter)
+    
+    plot_df = pd.DataFrame({'name': unique_values, 'frequency': unique_counts})
+       
+    plt.rcParams['figure.figsize'] = [12, 8]
+    plt.rcParams["axes.titlesize"] = 20
+    plt.rcParams["axes.labelsize"] = 12
+    plt.rcParams["xtick.labelsize"] = 6
+    plt.title('Number of '+column+ ' in '+table)
+    ax = sns.barplot(plot_df, x = 'name', y = 'frequency', hue='frequency', palette='crest')
+    plt.xlabel(column)
+    plt.xticks(rotation=45)
+    plt.ylabel('Frequency')
+    
+    for i in ax.containers:
+        ax.bar_label(i,)
+        
+    plt.show()
+    
+    return
+
+def plot_histogram(input_df, column):
+    
+    plt.figure(figsize=(10, 6))
+    plt.title('Distribution of '+column+' of flights')
+    ax = sns.histplot(data = input_df[column])
+    plt.xlabel(column)
+    plt.ylabel('Frequency')
+    
+    for i in ax.containers:
+        ax.bar_label(i,)
+        
+    plt.show()
+    
+    return
+
+def advanced_time_zones():
+    
+    pt1.analyzeTimeZone()  
+    
+    barplot_frequency('airports', 'tz')
+    barplot_frequency('airports', 'tzone')
+    
+    table_df = getTable('airports')
+    table_df = table_df.dropna(subset=['tzone'])
+    unique_values = table_df['tzone'].unique()
+    unique_counts = []
+    
+    for value in unique_values:
+        counter = 0
+        counter = table_df['tzone'].value_counts().get(value, 0)
+        unique_counts.append(counter)
+    
+    table_df = table_df.drop_duplicates(subset=['tzone'])
+    table_df = table_df.assign(tzone_counter=unique_counts)
+    
+    plt.rcParams['figure.figsize'] = [12, 8]
+    plt.rcParams["axes.titlesize"] = 20
+    plt.rcParams["axes.labelsize"] = 12
+    plt.rcParams["xtick.labelsize"] = 6
+    plt.rcParams["legend.markerscale"] = 0.5
+    plt.title('The relationship between the distance of a flight and the arrival delay time')
+    sns.scatterplot(table_df, x='tzone', y='tz', hue='tz', size='tzone_counter', sizes=(100, 1000), palette='RdBu')
+    plt.xlabel('tzone')
+    plt.ylabel('tz')
+    plt.show()
+    
+    return
+
+def analyze_altitude():
+        
+    table_df = getTable('airports')  
+    plot_histogram(table_df, 'alt')
+    
+    return
