@@ -84,9 +84,8 @@ def showAllTableNames():
     
 def printFlightsOnDateAtAirport(month, day, airport):
     
-    query = f'SELECT month, day, origin, dest, distance FROM flights WHERE month = ? AND day = ? AND origin = ?'
+    query = f'SELECT month, day, carrier, origin, dest, distance FROM flights WHERE month = ? AND day = ? AND origin = ?'
     cursor.execute(query, [month, day, airport])
-    
     rows = cursor.fetchall()
     new_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
         
@@ -96,7 +95,41 @@ def printFlightsOnDateAtAirport(month, day, airport):
     
     print('There are '+str(len(new_df))+' flights departed from '+airport+' airport on '+ str(day)+'/'+str(month)+'.')
     
-    plot_histogram(new_df, 'distance')
+    fig, axs = plt.subplots(1, 2, figsize=(12, 6))
+    plt.rcParams["axes.titlesize"] = 12
+    plt.rcParams["axes.labelsize"] = 10
+    plt.rcParams["xtick.labelsize"] = 6
+    
+    ax = sns.histplot(data = new_df['distance'], ax=axs[0])
+    axs[0].set_title('Distribution of distance')
+    axs[0].tick_params(labelsize=6, labelrotation=90)
+    axs[0].set_xlabel('distance', fontsize=10)
+    axs[0].set_ylabel('frequency', fontsize=10)
+    
+    for i in ax.containers:
+        ax.bar_label(i,fontsize=6)
+    
+    unique_values = new_df['carrier'].unique()
+    unique_counts = []
+    
+    for value in unique_values:
+        counter = 0
+        counter = new_df['carrier'].value_counts().get(value, 0)
+        unique_counts.append(counter)
+    
+    plot_df = pd.DataFrame({'name': unique_values, 'frequency': unique_counts})
+    
+    ax = sns.barplot(plot_df, x = 'name', y = 'frequency', hue='frequency', palette='crest', ax=axs[1])
+    axs[1].set_title('Number of carriers from '+airport+' airport on '+ str(day)+'/'+str(month))
+    axs[1].tick_params(labelsize=6, labelrotation=90)
+    axs[1].set_xlabel('carrier', fontsize=10)
+    axs[1].set_ylabel('frequency', fontsize=10)
+    axs[1].legend(fontsize=6)
+    
+    for i in ax.containers:
+        ax.bar_label(i,fontsize=6)
+        
+    plt.show()
     
     return
 
@@ -295,18 +328,17 @@ def arrivalDelayPlot():
     rows = cursor.fetchall()
     df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
     
-    plt.figure(figsize=(10, 6))
-    plt.title('The relationship between the distance of a flight and the arrival delay time')
-    sns.scatterplot(df, x='distance', y='arr_delay', size='arr_delay', sizes=(1, 100), hue='arr_delay', palette='Reds')
-    plt.xlabel('Distances')
-    plt.ylabel('Arrival Delay Time')
-    plt.show()
+    fig, axs = plt.subplots(1, 2, figsize=(12, 6))
+    plt.rcParams["axes.titlesize"] = 10
+    sns.scatterplot(df, x='distance', y='arr_delay', size='arr_delay', sizes=(1, 100), hue='arr_delay', palette='Reds', ax=axs[0])
+    axs[0].set_title('The relationship between the distance of a flight and the arrival delay time',fontsize=10)
+    axs[0].set_xlabel('Distances')
+    axs[0].set_ylabel('Arrival Delay Time')
     
-    plt.figure(figsize=(10, 6))
-    plt.title('Distribution of the arrival delay time')
-    sns.histplot(data = df['arr_delay'])
-    plt.xlabel('Arrival Delay Time')
-    plt.ylabel('Frequency')
+    sns.histplot(data = df['arr_delay'], ax=axs[1])
+    axs[1].set_title('Distribution of the arrival delay time', fontsize=10)
+    axs[1].set_xlabel('Arrival Delay Time')
+    axs[1].set_ylabel('Frequency')
     plt.show()
     
     return
@@ -449,13 +481,13 @@ def barplot_frequency(table, column):
 def plot_histogram(input_df, column):
     
     plt.figure(figsize=(10, 6))
-    plt.title('Distribution of '+column+' of flights')
+    plt.title('Distribution of '+column)
     ax = sns.histplot(data = input_df[column])
-    plt.xlabel(column)
-    plt.ylabel('Frequency')
+    plt.xlabel(column, fontsize=10)
+    plt.ylabel('frequency',fontsize=10)
     
     for i in ax.containers:
-        ax.bar_label(i,)
+        ax.bar_label(i,fontsize=6)
         
     plt.show()
     
@@ -465,10 +497,36 @@ def advanced_time_zones():
     
     pt1.analyzeTimeZone()  
     
-    barplot_frequency('airports', 'tz')
-    barplot_frequency('airports', 'tzone')
-    
     table_df = getTable('airports')
+    column_list = ['tz', 'tzone']
+    
+    fig, axs = plt.subplots(1, 3, figsize=(20, 5))
+    plt.rcParams["axes.titlesize"] = 10
+    plt.rcParams["axes.labelsize"] = 4
+    plt.rcParams["xtick.labelsize"] = 4
+    
+    for i in range(2):
+    
+        unique_values = table_df[column_list[i]].unique()
+        unique_counts = []
+    
+        for value in unique_values:
+            counter = 0
+            counter = table_df[column_list[i]].value_counts().get(value, 0)
+            unique_counts.append(counter)
+        
+        plot_df = pd.DataFrame({'name': unique_values, 'frequency': unique_counts})
+    
+        ax = sns.barplot(plot_df, x = 'name', y = 'frequency', hue='frequency', palette='crest', ax=axs[i])
+        axs[i].set_title('Number of '+column_list[i]+' in airports')
+        axs[i].set_xlabel(column_list[i],fontsize=10)
+        axs[i].set_ylabel('frequency',fontsize=10)
+        axs[i].tick_params(labelsize=6, labelrotation=90)
+        axs[i].legend(fontsize=6)
+    
+        for j in ax.containers:
+            ax.bar_label(j,fontsize=6)
+    
     table_df = table_df.dropna(subset=['tzone'])
     unique_values = table_df['tzone'].unique()
     unique_counts = []
@@ -481,22 +539,87 @@ def advanced_time_zones():
     table_df = table_df.drop_duplicates(subset=['tzone'])
     table_df = table_df.assign(tzone_counter=unique_counts)
     
-    plt.rcParams['figure.figsize'] = [12, 8]
-    plt.rcParams["axes.titlesize"] = 20
-    plt.rcParams["axes.labelsize"] = 12
-    plt.rcParams["xtick.labelsize"] = 6
-    plt.rcParams["legend.markerscale"] = 0.5
-    plt.title('The relationship between the distance of a flight and the arrival delay time')
-    sns.scatterplot(table_df, x='tzone', y='tz', hue='tz', size='tzone_counter', sizes=(100, 1000), palette='RdBu')
-    plt.xlabel('tzone')
-    plt.ylabel('tz')
-    plt.show()
+    plt.rcParams["legend.markerscale"] = 0.3
+    sns.scatterplot(table_df, x='tzone', y='tz', hue='tz', size='tzone_counter', sizes=(100, 1000), palette='RdBu', ax=axs[2])
+    axs[2].set_title('Relationship between the distance of \na flight and the arrival delay time')
+    axs[2].set_xlabel('tzone',fontsize=10)
+    axs[2].set_ylabel('tz',fontsize=10)
+    axs[2].tick_params(labelsize=6, labelrotation=90)
+    axs[2].legend(fontsize=6)
     
+    plt.show()
+
     return
 
 def analyze_altitude():
         
     table_df = getTable('airports')  
-    plot_histogram(table_df, 'alt')
     
+    plt.figure(figsize=(10, 6))
+    plt.title('Distribution of altitudes of all airports')
+    ax = sns.histplot(data = table_df['alt'])
+    plt.xlabel('alt', fontsize=10)
+    plt.ylabel('frequency',fontsize=10)
+    
+    for i in ax.containers:
+        ax.bar_label(i,fontsize=6)
+        
+    plt.show()
+    
+    return
+
+def analyze_seats():
+        
+    table_df = getTable('planes') 
+     
+    plt.figure(figsize=(10, 6))
+    plt.title('Distribution of seats in planes')
+    ax = sns.histplot(data = table_df['seats'], binwidth=50)
+    plt.xlabel('seats')
+    plt.ylabel('Frequency')
+    plt.tick_params(labelsize=6, labelrotation=90)
+    
+    for i in ax.containers:
+        ax.bar_label(i,fontsize=6)
+        
+    plt.show()
+    
+    return
+
+def analyze_planes():
+    
+    table_df = getTable('planes')
+    column_list = ['year', 'manufacturer', 'seats', 'engine']
+    
+    fig, axs = plt.subplots(2, 2, figsize=(18, 12))
+    fig.subplots_adjust(wspace=0.5, hspace=0.5)
+    plt.rcParams['figure.figsize'] = [6, 4]
+    plt.rcParams["axes.titlesize"] = 6
+    plt.rcParams["axes.labelsize"] = 4
+    plt.rcParams["xtick.labelsize"] = 4
+    
+    for i in range(2):
+        for j in range(2):
+            unique_values = table_df[column_list[i*2+j]].unique()
+            unique_counts = []
+            
+            for value in unique_values:
+                counter = 0
+                counter = table_df[column_list[i*2+j]].value_counts().get(value, 0)
+                unique_counts.append(counter)
+                
+            plot_df = pd.DataFrame({'name': unique_values, 'frequency': unique_counts})
+                
+            ax = sns.barplot(plot_df, x = 'name', y = 'frequency', hue='frequency', palette='crest', ax=axs[i,j])
+            axs[i,j].set_title('Distribution of '+column_list[i*2+j])
+            axs[i,j].set_xlabel(column_list[i*2+j], fontsize=6)
+            axs[i,j].set_ylabel('frequency', fontsize=6)
+            axs[i,j].legend(fontsize=6)
+            axs[i,j].tick_params(labelsize=6, labelrotation=90)
+            
+            for k in ax.containers:
+                ax.bar_label(k, fontsize=6)
+            
+    plt.show()  
+        
     return
