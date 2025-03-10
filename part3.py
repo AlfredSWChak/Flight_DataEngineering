@@ -350,10 +350,11 @@ def amongOfDelayFlights(start_month, end_month, dest):
     rows = cursor.fetchall()
     df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
     df = df.dropna(subset=['dep_delay','arr_delay'], how='all')
+    amount = len(df)
     
-    print('For destination',dest,'during month',start_month,'to',end_month,', the amount of delay flights is',len(df),'.')
+    print('For destination',dest,'during month',start_month,'to',end_month,', the amount of delay flights is',amount,'.')
     
-    return
+    return amount
 
 def planes_speed():
     query_flights = "SELECT tailnum, distance, air_time FROM flights WHERE air_time > 0"
@@ -443,6 +444,24 @@ def unique_depart_airports():
     print(airports_df)
     
     return
+
+def unique_arrive_airports():
+    
+    query = f'SELECT dest FROM flights'
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    dest_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    
+    dest_df_list = dest_df.drop_duplicates()['dest'].tolist()
+    
+    query = f'SELECT * FROM airports WHERE faa IN ({','.join(['?']*len(dest_df_list))})'
+    cursor.execute(query, dest_df_list)
+    rows = cursor.fetchall()
+    airports_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+       
+    # print(airports_df)
+    
+    return dest_df_list
 
 def barplot_frequency(table, column):
     
