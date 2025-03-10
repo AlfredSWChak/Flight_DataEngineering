@@ -91,7 +91,7 @@ def printFlightsOnDateAtAirport(month, day, airport):
         
     destinationList = new_df['dest']
     
-    pt1.drawMultipleLines(destinationList, month, day, airport)
+    result = pt1.drawMultipleLines(destinationList, month, day, airport)
     
     print('There are '+str(len(new_df))+' flights departed from '+airport+' airport on '+ str(day)+'/'+str(month)+'.')
     
@@ -129,9 +129,9 @@ def printFlightsOnDateAtAirport(month, day, airport):
     for i in ax.containers:
         ax.bar_label(i,fontsize=6)
         
-    plt.show()
+    # plt.show()
     
-    return
+    return result
 
 def printStatisticsOnDateAtAirport(month, day, airport):
     
@@ -165,7 +165,7 @@ def printStatisticsOnDateAtAirport(month, day, airport):
     print('On '+str(day)+'/'+str(month)+' at '+airport+', there are '+str(numUniqueDest)+' unique destinations.')
     print('On '+str(day)+'/'+str(month)+' at '+airport+', '+destMost+' is visited most often with '+str(numMost)+' flights.')
     
-    return
+    return numFlights, numUniqueDest, destMost, numMost
 
 def printPlanesStatistics(origin, dest):
     
@@ -425,7 +425,6 @@ def compute_wind_direction_from_NYC():
     print(new_df)       
         
     return
-
 
 def unique_depart_airports():
     
