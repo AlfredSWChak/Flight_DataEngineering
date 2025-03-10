@@ -81,8 +81,8 @@ def drawMultipleLines(faaList, month, day, origin_faa):
     
     fig.update_layout(title_text = 'Flights to New York from specific locations', showlegend = False)
     fig.update_layout(title = 'Flights departed from ' + origin_faa + ' on ' + str(day) + '/' + str(month) ,geo_scope="usa")
-    fig.show()
-    return
+    # fig.show()
+    return fig
 
 def getJFK():
     JFK_df = pd.DataFrame(columns = ["faa", "name", "lat", "lon", "alt", "tz", "dst", "tzone"])
