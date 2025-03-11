@@ -1,20 +1,17 @@
 import streamlit as st
+import altair as alt
 import alfred_function as af
 import part3 as pt3
 import calendar
 from datetime import datetime
 
-st.set_page_config(page_title = 'Project Flights', 
-                   layout = 'wide', 
-                   initial_sidebar_state = 'expanded')
-
 st.sidebar.title('Functions')
-home = st.sidebar.button('Home Page')
 
 options_set = ('Flight statistics on specific day', 
                'Top five plane models', 
                'Top five flights',
-               'Among of delay flights')
+               'Among of delay flights',
+               'Check available carrier for flight')
 month_list = list(calendar.month_name)[1:]
 
 add_selectbox = st.sidebar.radio('Options', 
@@ -22,10 +19,13 @@ add_selectbox = st.sidebar.radio('Options',
                                  label_visibility='hidden'
 )
 
-if home:
-    st.text('Welcome, This is home page.')
+if 'clicked' not in st.session_state:
+    st.session_state.clicked = False
 
-elif add_selectbox == 'Flight statistics on specific day':
+def click_button():
+    st.session_state.clicked = True
+
+if add_selectbox == 'Flight statistics on specific day':
     st.header('Flight statistics on specific day')
 
     c_1 = st.container()
@@ -98,3 +98,35 @@ elif add_selectbox == 'Among of delay flights':
             amount = pt3.amongOfDelayFlights(start_month, end_month, dest)
             
             st.write('For destination',dest,'during month',input_start_month,'to',input_end_month,', the amount of delay flights is',amount,'.')
+            
+elif add_selectbox == 'Check available carrier for flight':
+    st.header('Available carrier')
+    
+    c_1 = st.container()
+    
+    with c_1:
+        origin = st.selectbox('Select Departure Airport:',['EWR', 'LGA', 'JFK'])
+        dest_list = sorted(pt3.unique_arrive_airports_input(origin))
+        dest = st.selectbox('Select Arrival Airport:',dest_list)
+        button_clicked = st.button('Submit', on_click=click_button)
+    
+    c_2 = st.container(border=True)
+    
+    with c_2:
+        if st.session_state.clicked:
+            result = af.available_carrier(origin, dest)
+            st.table(result.set_index(result.columns[0]))
+            
+            carrier = st.radio('Select an airline:', set(result['carrier']))
+        
+            numPlanes, new_result = af.available_plane_model(origin, dest, carrier)
+            st.write('There are',numPlanes, 'planes served by', carrier+'.')
+            
+            result, bar_result = af.check_plane_model(list(new_result['tailnum']))
+            
+            st.write('There are',len(result),'unique models:')
+            st.table(result.set_index(result.columns[0]))
+            
+            bar_chart = alt.Chart(bar_result, title='Number of planes in each year').mark_bar().encode(x='year', y='numModels')
+            st.altair_chart(bar_chart,use_container_width=True)
+            

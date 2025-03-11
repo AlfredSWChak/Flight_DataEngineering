@@ -463,6 +463,24 @@ def unique_arrive_airports():
     
     return dest_df_list
 
+def unique_arrive_airports_input(origin):
+    
+    query = f'SELECT dest FROM flights WHERE origin = ?'
+    cursor.execute(query, (origin,))
+    rows = cursor.fetchall()
+    dest_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    
+    dest_df_list = dest_df.drop_duplicates()['dest'].tolist()
+    
+    query = f'SELECT * FROM airports WHERE faa IN ({','.join(['?']*len(dest_df_list))})'
+    cursor.execute(query, dest_df_list)
+    rows = cursor.fetchall()
+    airports_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+       
+    # print(airports_df)
+    
+    return dest_df_list
+
 def barplot_frequency(table, column):
     
     # table = input('Enter the table name:')
