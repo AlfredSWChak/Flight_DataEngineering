@@ -8,8 +8,8 @@ from datetime import datetime
 st.sidebar.title('Functions')
 
 options_set = ('Flight statistics on specific day', 
-               'Top five plane models', 
-               'Top five flights',
+            #    'Top five plane models', 
+            #    'Top five flights',
                'Among of delay flights',
                'Check available carrier for flight')
 month_list = list(calendar.month_name)[1:]
@@ -53,30 +53,30 @@ if add_selectbox == 'Flight statistics on specific day':
             
             st.plotly_chart(fig, use_container_width=True)
             
-elif add_selectbox == 'Top five plane models':
-    st.header('The top 5 plane models are:')
+# elif add_selectbox == 'Top five plane models':
+#     st.header('The top 5 plane models are:')
     
-    c_1 = st.container(border=True)
+#     c_1 = st.container(border=True)
     
-    with c_1:
-        result = af.top_five_planes()
-        st.table(result.set_index(result.columns[0]))
+#     with c_1:
+#         result = af.top_five_planes()
+#         st.table(result.set_index(result.columns[0]))
         
-elif add_selectbox == 'Top five flights':
-    st.header('Top 5 flights')
+# elif add_selectbox == 'Top five flights':
+#     st.header('Top 5 flights')
     
-    c_1 = st.container()
+#     c_1 = st.container()
     
-    with c_1:
-        airport = st.selectbox('Select a airport',['EWR', 'LGA', 'JFK', 'All airports'])
-        button_clicked = st.button('Submit')
+#     with c_1:
+#         airport = st.selectbox('Select a airport',['EWR', 'LGA', 'JFK', 'All airports'])
+#         button_clicked = st.button('Submit')
         
-    c_2 = st.container(border=True)  
+#     c_2 = st.container(border=True)  
         
-    with c_2:
-        if button_clicked:
-            result = af.top_five_flights(airport)
-            st.table(result.set_index(result.columns[0]))
+#     with c_2:
+#         if button_clicked:
+#             result = af.top_five_flights(airport)
+#             st.table(result.set_index(result.columns[0]))
         
 elif add_selectbox == 'Among of delay flights':
     st.header('Among of delay flights')
@@ -105,28 +105,38 @@ elif add_selectbox == 'Check available carrier for flight':
     c_1 = st.container()
     
     with c_1:
-        origin = st.selectbox('Select Departure Airport:',['EWR', 'LGA', 'JFK'])
-        dest_list = sorted(pt3.unique_arrive_airports_input(origin))
-        dest = st.selectbox('Select Arrival Airport:',dest_list)
-        button_clicked = st.button('Submit', on_click=click_button)
+        cols = st.columns((4, 4), gap = 'medium')
+        
+        with cols[0]:
+            origin = st.selectbox('Select Departure Airport:',['EWR', 'LGA', 'JFK'])
+            dest_list = sorted(pt3.unique_arrive_airports_input(origin))
+            dest = st.selectbox('Select Arrival Airport:',dest_list)
+        
+        with cols[1]:
+            st.subheader('General Information of the flight')
+            st.write('Distance of flight:',af.get_geodesicDistance(origin, dest),'km')
+            st.write('Time of flight:', af.get_airtime(origin, dest),'minutes')
+            st.write('Altitude difference between:', af.get_altdiff(origin, dest),'m')
+            
     
     c_2 = st.container(border=True)
     
     with c_2:
-        if st.session_state.clicked:
-            result = af.available_carrier(origin, dest)
-            st.table(result.set_index(result.columns[0]))
-            
-            carrier = st.radio('Select an airline:', set(result['carrier']))
+        fig = af.drawOneFlight(origin, dest)
+        st.plotly_chart(fig, use_container_width=True)
         
-            numPlanes, new_result = af.available_plane_model(origin, dest, carrier)
-            st.write('There are',numPlanes, 'planes served by', carrier+'.')
-            
-            result, bar_result = af.check_plane_model(list(new_result['tailnum']))
-            
-            st.write('There are',len(result),'unique models:')
-            st.table(result.set_index(result.columns[0]))
-            
-            bar_chart = alt.Chart(bar_result, title='Number of planes in each year').mark_bar().encode(x='year', y='numModels')
-            st.altair_chart(bar_chart,use_container_width=True)
-            
+        result = af.available_carrier(origin, dest)
+        st.table(result.set_index(result.columns[0]))
+        
+        carrier = st.radio('Select an airline:', set(result['carrier']))
+    
+        numPlanes, new_result = af.available_plane_model(origin, dest, carrier)
+        st.write('There are',numPlanes, 'planes served by', carrier+'.')
+        
+        result, bar_result = af.check_plane_model(list(new_result['tailnum']))
+        
+        st.write('There are',len(result),'unique models:')
+        st.table(result.set_index(result.columns[0]))
+        
+        bar_chart = alt.Chart(bar_result, title='Number of planes in each year').mark_bar().encode(x='year', y='numModels')
+        st.altair_chart(bar_chart,use_container_width=True)

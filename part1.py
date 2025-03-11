@@ -45,12 +45,12 @@ def drawLine(inputFAA, fig):
            NYC_lon = file.iloc[i] ["lon"]
            new_df.loc[i] = file.iloc[i]
     
-    print(new_df)
+    # print(new_df)
     
     fig = px.scatter_geo(new_df, hover_name="name", lat="lat", lon="lon", color="alt", text="faa")
     # fig.update_layout(title = 'Map of US.',geo_scope="usa")
     fig.add_trace(go.Scattergeo(locationmode = 'USA-states',lon = [input_lon, NYC_lon], lat = [input_lat, NYC_lat], mode = "lines", line = dict(width = 1,color = 'red'), opacity = 1))
-    fig.show()
+    # fig.show()
     return fig
 
 def drawMultipleLines(faaList, month, day, origin_faa):
