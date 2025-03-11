@@ -1,6 +1,9 @@
 import sqlite3
 import pandas as pd
 import seaborn as sns
+import plotly.express as px
+import plotly.graph_objects as go
+import math
 
 connection = sqlite3.connect('flights_database.db')
 cursor = connection.cursor()
@@ -24,8 +27,6 @@ def top_five_planes():
         
     result = result.assign(numPlanes=list(top_five['numPlanes']))
     result = result.drop(columns=['tailnum', 'year'])
-    
-    # print(result.to_string(index=False))
     
     return result
 
@@ -95,3 +96,71 @@ def check_plane_model(tailnum_list):
     # count_planes_df = count_planes_df.drop(columns=['tailnum', 'type', 'manufacturer','model','engines','seats','speed','engine'])
     
     return result, count_planes_df
+
+def drawOneFlight(origin, dest):
+    
+    keys = [origin, dest]
+    
+    query = f'SELECT * FROM airports WHERE faa IN ({','.join(['?']*len(keys))})'
+    cursor.execute(query, keys)
+    rows = cursor.fetchall()
+    airports_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    
+    fig = px.scatter_geo(airports_df, hover_name="name", lat="lat", lon="lon", color="alt", text="faa")  
+    
+    fig.update_layout(title = 'Trace of the flight',geo_scope="usa")
+    fig.add_trace(go.Scattergeo(locationmode = 'USA-states',lon = airports_df['lon'], lat = airports_df['lat'], mode = "lines", line = dict(width = 1,color = 'red'), opacity = 1))
+    
+    for tzone in airports_df['tzone']:
+        if 'America' in tzone:
+            return fig
+    
+    fig.update_layout(title = 'Trace of the flight',geo_scope="usa")
+    
+    return fig
+
+def get_geodesicDistance(origin, dest):
+    
+    earthRadius = 6378
+    
+    keys = [origin, dest]
+    
+    query = f'SELECT * FROM airports WHERE faa IN ({','.join(['?']*len(keys))})'
+    cursor.execute(query, keys)
+    rows = cursor.fetchall()
+    airports_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    
+    deltaLon = math.radians(airports_df['lon'][0] - airports_df['lon'][1])
+    deltaLat = math.radians(airports_df['lat'][0] - airports_df['lat'][1])
+    midPointLat =  math.radians((airports_df['lat'].sum()) / 2)
+        
+    distance = earthRadius * math.sqrt((2 * math.sin(deltaLat/2) * math.cos(deltaLon/2))**2 + (2 * math.cos(midPointLat) * math.sin(deltaLon/2))**2)
+    distance = round(distance, 0)
+
+    return distance
+
+def get_airtime(origin, dest):
+    
+    query = f'SELECT origin, dest, air_time FROM flights WHERE origin = ? AND dest = ?'
+    cursor.execute(query, (origin, dest,))
+    rows = cursor.fetchall()
+    flights_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    
+    result = flights_df['air_time'].mean()
+    result = round(result,0)
+    
+    return result
+
+def get_altdiff(origin, dest):
+    
+    keys = [origin, dest]
+    
+    query = f'SELECT * FROM airports WHERE faa IN ({','.join(['?']*len(keys))})'
+    cursor.execute(query, keys)
+    rows = cursor.fetchall()
+    airports_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    
+    result = abs(airports_df['alt'][0] - airports_df['alt'][1])
+    result = round(result,0)
+    
+    return result
