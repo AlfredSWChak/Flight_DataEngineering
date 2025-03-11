@@ -56,3 +56,42 @@ def top_five_flights(airport):
     
     return result
 
+def available_carrier(origin, dest):
+    
+    query = f'SELECT origin, dest, carrier FROM flights WHERE origin = ? AND dest = ?'
+    cursor.execute(query, (origin, dest,))
+    rows = cursor.fetchall()
+    flights_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    
+    unique_flights_df = flights_df.drop_duplicates(subset=['carrier'])   
+    result = unique_flights_df
+    
+    return result
+
+def available_plane_model(origin, dest, carrier):
+    
+    query = f'SELECT origin, dest, carrier, tailnum FROM flights WHERE origin = ? AND dest = ? AND carrier = ?'
+    cursor.execute(query, (origin, dest, carrier,))
+    rows = cursor.fetchall()
+    flights_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+
+    new_df = flights_df[flights_df['carrier'] == carrier].drop_duplicates(subset=['tailnum']) 
+    numPlanes = len(new_df)
+    
+    return numPlanes, new_df
+
+def check_plane_model(tailnum_list):
+    
+    query = f'SELECT * FROM planes WHERE tailnum IN ({','.join(['?']*len(tailnum_list))})'
+    cursor.execute(query, tailnum_list)
+    rows = cursor.fetchall()
+    planes_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    
+    result = planes_df.drop_duplicates(subset=['manufacturer', 'model'])
+    result = result.drop(columns=['year','tailnum'])
+    
+    count_planes_df = planes_df.groupby(by=['year']).size().reset_index(name='numModels')
+    # count_planes_df = count_planes_df.sort_values(by=['year'], ascending=False)
+    # count_planes_df = count_planes_df.drop(columns=['tailnum', 'type', 'manufacturer','model','engines','seats','speed','engine'])
+    
+    return result, count_planes_df
