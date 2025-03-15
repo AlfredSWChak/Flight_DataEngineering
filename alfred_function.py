@@ -57,6 +57,29 @@ def top_five_flights(airport):
     
     return result
 
+def printTopFiveFlights(origin_list, dest_list):
+   
+    all_list = origin_list + dest_list
+    
+    query = f'SELECT * FROM airports WHERE faa IN ({','.join(['?']*len(all_list))})'
+    cursor.execute(query, all_list)
+    rows = cursor.fetchall()
+    airports_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    
+    fig = px.scatter_geo(airports_df, hover_name="name", lat="lat", lon="lon", color="alt", text="faa")  
+    
+    for origin, dest in zip(origin_list, dest_list):
+        origin_lat = airports_df[airports_df['faa']==origin]['lat'].iloc[0]
+        origin_lon = airports_df[airports_df['faa']==origin]['lon'].iloc[0]
+        dest_lat = airports_df[airports_df['faa']==dest]['lat'].iloc[0]
+        dest_lon = airports_df[airports_df['faa']==dest]['lon'].iloc[0]
+   
+        fig.add_trace(go.Scattergeo(locationmode = 'USA-states',lon = [origin_lon, dest_lon], lat = [origin_lat, dest_lat], mode = "lines", line = dict(width = 1,color = 'red'), opacity = 1))
+    
+    # fig.update_traces(showlegend=False)
+    
+    return fig
+
 def available_carrier(origin, dest):
     
     query = f'SELECT origin, dest, carrier FROM flights WHERE origin = ? AND dest = ?'
@@ -164,3 +187,30 @@ def get_altdiff(origin, dest):
     result = round(result,0)
     
     return result
+
+def printOneAirport(airport):
+    
+    query = f'SELECT * FROM airports WHERE faa = ?'
+    cursor.execute(query, (airport,))
+    rows = cursor.fetchall()
+    airport_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+   
+    fig = px.scatter_geo(airport_df, hover_name='name', 
+                         lat='lat', 
+                         lon = 'lon',
+                         size_max=1)
+    fig.update_layout(title = 'The location of the airport')
+    fig.update_traces(marker_color='red', selector=dict(type='scattergeo'))
+    fig.update_traces(marker_symbol="star",selector=dict(type='scattergeo'))
+    fig.update_traces(marker_size=10, selector=dict(type='scattergeo'))
+    
+    return fig
+
+def getAirportInfo(airport):
+    
+    query = f'SELECT * FROM airports WHERE faa = ?'
+    cursor.execute(query, (airport,))
+    rows = cursor.fetchall()
+    airport_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    
+    return airport_df
