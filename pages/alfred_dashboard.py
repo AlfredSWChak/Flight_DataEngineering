@@ -8,12 +8,10 @@ from datetime import datetime
 
 st.sidebar.title('Functions')
 
-options_set = ('Flight statistics on specific day', 
-            #    'Top five plane models', 
-            #    'Top five flights',
-               'Among of delay flights',
-               'Check available carrier for flight',
-               'Airports General Information')
+options_set = ('General Information of **Airports**',
+               'General Information of **Airlines**',
+               'Flight statistics on specific day',
+               'Among of delay flights')
 month_list = list(calendar.month_name)[1:]
 
 add_selectbox = st.sidebar.radio('Options', 
@@ -54,31 +52,6 @@ if add_selectbox == 'Flight statistics on specific day':
             fig = pt3.printFlightsOnDateAtAirport(month, day, airport)
             
             st.plotly_chart(fig, use_container_width=True)
-            
-# elif add_selectbox == 'Top five plane models':
-#     st.header('The top 5 plane models are:')
-    
-#     c_1 = st.container(border=True)
-    
-#     with c_1:
-#         result = af.top_five_planes()
-#         st.table(result.set_index(result.columns[0]))
-        
-# elif add_selectbox == 'Top five flights':
-#     st.header('Top 5 flights')
-    
-#     c_1 = st.container()
-    
-#     with c_1:
-#         airport = st.selectbox('Select a airport',['EWR', 'LGA', 'JFK', 'All airports'])
-#         button_clicked = st.button('Submit')
-        
-#     c_2 = st.container(border=True)  
-        
-#     with c_2:
-#         if button_clicked:
-#             result = af.top_five_flights(airport)
-#             st.table(result.set_index(result.columns[0]))
         
 elif add_selectbox == 'Among of delay flights':
     st.header('Among of delay flights')
@@ -101,7 +74,7 @@ elif add_selectbox == 'Among of delay flights':
             
             st.write('For destination',dest,'during month',input_start_month,'to',input_end_month,', the amount of delay flights is',amount,'.')
             
-elif add_selectbox == 'Check available carrier for flight':
+elif add_selectbox == 'General Information of **Airlines**':
     st.header('Available carrier')
     
     c_1 = st.container()
@@ -141,31 +114,62 @@ elif add_selectbox == 'Check available carrier for flight':
         st.table(result.set_index(result.columns[0]))
         
         bar_chart = alt.Chart(bar_result, title='Number of planes in each year').mark_bar().encode(x='year', y='numModels')
-        st.altair_chart(bar_chart,use_container_width=True)
+        st.altair_chart(bar_chart,use_container_width=True)  
         
-elif add_selectbox == 'Airports General Information':
-    st.header('Airport General Information')
-    
-    c_1 = st.container()
-    
+elif add_selectbox == 'General Information of **Airports**':
+    st.title('General Information of airports')
+
+    c_1 = st.container(border=True)
+        
     with c_1:
+        fig = pt1.showAllAirports()
+        area = st.radio('Select a scope:', ('World', 'USA', 'Europe', 'Asia', 'Africa', 'North America', 'South America'), horizontal=True)
+        fig.update_layout(geo_scope=area.lower())
+        st.plotly_chart(fig, use_container_width=True)
+        
+    st.subheader('Airport General Information')
+    
+    c_4 = st.container()
+    
+    with c_4:
         cols = st.columns((4, 4), gap = 'medium')
         
         with cols[0]:
             airport_df = pt3.getTable('airports')
             airport = st.selectbox('Select an Airport:', airport_df['faa'])
-            button_clicked = st.button('Submit')
             
         with cols[1]:
-            if button_clicked:
-                airport_row = af.getAirportInfo(airport)
-                st.write('Full name: ',airport_row['name'][0])
-                st.write('Altitude: ',airport_row['alt'][0],'m')
-                st.write('Time Zone: GMT',airport_row['tz'][0])
+            airport_row = af.getAirportInfo(airport)
+            st.write('Full name: ',airport_row['name'][0])
+            st.write('Altitude: ',airport_row['alt'][0],'m')
+            st.write('Time Zone: GMT',airport_row['tz'][0])
             
-    c_2 = st.container(border=True)
+    c_5 = st.container(border=True)
     
-    with c_2: 
-        fig = pt1.showAllAirports()
+    with c_5: 
         fig = af.printOneAirport(airport)
+        fig.update_layout(dragmode=False)
         st.plotly_chart(fig, use_container_width=True)
+        
+    st.subheader('Top five flights of selected airport(s)')
+    
+    c_2 = st.container()
+        
+    with c_2:
+        airport = st.selectbox('Select a deaprture airport',['EWR', 'LGA', 'JFK', 'All airports'])
+        button_clicked = st.button('Submit')   
+       
+    c_3 = st.container(border=True)
+        
+    with c_3:   
+        if button_clicked:
+            result = af.top_five_flights(airport)
+            fig = af.printTopFiveFlights(list(result['origin']), list(result['dest']))
+            
+            fig.update_layout(geo_scope='usa')
+            fig.update_layout(title = f'Top five flights of {airport}')
+            fig.update_coloraxes(showscale=False)
+            st.plotly_chart(fig, use_container_width=True)
+            result = result.drop(columns=['origin'])
+            st.table(result.set_index(result.columns[0]))
+            
