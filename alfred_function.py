@@ -30,6 +30,28 @@ def top_five_planes():
     
     return result
 
+def top_five_flights_JFK():
+    
+    query = f'SELECT * FROM flights WHERE origin = ?'
+    cursor.execute(query, ('JFK',))
+    rows = cursor.fetchall()
+    flights_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+
+    unique_planes_df = flights_df.drop_duplicates(subset=['tailnum'])
+    
+    count_planes_df = flights_df.groupby(by=['tailnum']).size().reset_index(name='numFlights')
+    top_five = count_planes_df.sort_values(by=['numFlights'], ascending=False).head()
+    
+    result = pd.DataFrame()
+    
+    # for manufacturer, model, numPlanes in zip(top_five['manufacturer'], top_five['model'], top_five['numPlanes']):
+    #     result = pd.concat([result, unique_planes_df[(unique_planes_df['manufacturer'] == manufacturer) & (unique_planes_df['model'] == model)]])
+        
+    # result = result.assign(numPlanes=list(top_five['numPlanes']))
+    # result = result.drop(columns=['tailnum', 'year'])
+    
+    return result
+
 def top_five_flights(airport):
     
     if(airport == 'All airports'):
