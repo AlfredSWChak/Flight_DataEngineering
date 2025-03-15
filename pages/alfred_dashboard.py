@@ -1,6 +1,7 @@
 import streamlit as st
 import altair as alt
 import alfred_function as af
+import part1 as pt1
 import part3 as pt3
 import calendar
 from datetime import datetime
@@ -11,7 +12,8 @@ options_set = ('Flight statistics on specific day',
             #    'Top five plane models', 
             #    'Top five flights',
                'Among of delay flights',
-               'Check available carrier for flight')
+               'Check available carrier for flight',
+               'Airports General Information')
 month_list = list(calendar.month_name)[1:]
 
 add_selectbox = st.sidebar.radio('Options', 
@@ -140,3 +142,30 @@ elif add_selectbox == 'Check available carrier for flight':
         
         bar_chart = alt.Chart(bar_result, title='Number of planes in each year').mark_bar().encode(x='year', y='numModels')
         st.altair_chart(bar_chart,use_container_width=True)
+        
+elif add_selectbox == 'Airports General Information':
+    st.header('Airport General Information')
+    
+    c_1 = st.container()
+    
+    with c_1:
+        cols = st.columns((4, 4), gap = 'medium')
+        
+        with cols[0]:
+            airport_df = pt3.getTable('airports')
+            airport = st.selectbox('Select an Airport:', airport_df['faa'])
+            button_clicked = st.button('Submit')
+            
+        with cols[1]:
+            if button_clicked:
+                airport_row = af.getAirportInfo(airport)
+                st.write('Full name: ',airport_row['name'][0])
+                st.write('Altitude: ',airport_row['alt'][0],'m')
+                st.write('Time Zone: GMT',airport_row['tz'][0])
+            
+    c_2 = st.container(border=True)
+    
+    with c_2: 
+        fig = pt1.showAllAirports()
+        fig = af.printOneAirport(airport)
+        st.plotly_chart(fig, use_container_width=True)

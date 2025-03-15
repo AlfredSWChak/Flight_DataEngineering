@@ -21,9 +21,9 @@ def showAllAirports():
                          size_max=1)
     fig.update_layout(title = 'All the airports with different altitudes')
     fig.update_coloraxes(colorbar_title_text='Altitude of airports')
-    fig.show()
+    # fig.show()
     
-    return
+    return fig
 
 def drawLine(inputFAA, fig):
 
