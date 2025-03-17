@@ -3,6 +3,7 @@ import altair as alt
 import alfred_function as af
 import part1 as pt1
 import part3 as pt3
+import weather as wthr
 import calendar
 from datetime import datetime
 
@@ -10,6 +11,7 @@ st.sidebar.title('Functions')
 
 options_set = ('General Information of **Airports**',
                'General Information of **Airlines**',
+               'General Information of **Weather**',
                'Flight statistics on specific day',
                'Among of delay flights')
 month_list = list(calendar.month_name)[1:]
@@ -172,4 +174,28 @@ elif add_selectbox == 'General Information of **Airports**':
             st.plotly_chart(fig, use_container_width=True)
             result = result.drop(columns=['origin'])
             st.table(result.set_index(result.columns[0]))
+            
+elif add_selectbox == 'General Information of **Weather**':
+    st.title('General Information of weather')
+
+    c_2 = st.container()
+        
+    with c_2:
+        cols = st.columns((4, 4), gap = 'medium')
+        
+        with cols[0]:
+            season = st.radio('Select a season:', ('Whole year', 'Spring (March, April, May)', 'Summer (June, July, August)', 'Autumn (September, October, November)', 'Winter (December, Janurary, Feburary)'), horizontal=False)
+            month_list = wthr.getMonth(season)
+            
+        with cols[1]:
+            fig, result = wthr.hourlyAverage(month_list)
+            st.write('**Average**')
+            st.write('Wind Speed:',round(result['wind_speed'],3),'m/s')
+            st.write('Wind Gust:',round(result['wind_gust'],3), 'm/s')
+            st.write('Visibility:',round(result['visib'],3),'m')     
+
+    c_1 = st.container(border=True)
+        
+    with c_1:
+        st.plotly_chart(fig, use_container_width=True)
             
