@@ -4,6 +4,7 @@ import alfred_function as af
 import part1 as pt1
 import part3 as pt3
 import weather as wthr
+import airlines as alnes
 import calendar
 from datetime import datetime
 
@@ -11,6 +12,7 @@ st.sidebar.title('Functions')
 
 options_set = ('General Information of **Airports**',
                'General Information of **Airlines**',
+               'General Information of **Flights**',
                'General Information of **Weather**',
                'Flight statistics on specific day',
                'Among of delay flights')
@@ -75,9 +77,37 @@ elif add_selectbox == 'Among of delay flights':
             amount = pt3.amongOfDelayFlights(start_month, end_month, dest)
             
             st.write('For destination',dest,'during month',input_start_month,'to',input_end_month,', the amount of delay flights is',amount,'.')
-            
+
 elif add_selectbox == 'General Information of **Airlines**':
-    st.header('Available carrier')
+    st.header('General Information of airlines')
+    
+    c_1 = st.container()
+    
+    with c_1:
+        temp = alnes.getAirlines_list()
+        joined_df = temp[['carrier','name']].agg('-'.join, axis=1)
+
+        airline = st.selectbox('Select an airline:', sorted(set(joined_df)))
+        airline_abbrv = airline[:2]
+        airline_fullName = airline[3:]
+        
+    c_2 = st.container()
+    
+    with c_2:
+        models_df, numOfPlanes, numOfUniqueModels, manufacturers_list = alnes.getAllTailnum(airline_abbrv)
+        st.write(airline_fullName,'has total', numOfPlanes,'planes. ',numOfUniqueModels,'different models are provided.')
+
+        manufacturer = st.selectbox('Select a model:', sorted(set(manufacturers_list)))
+        
+        models_list = alnes.getModelsList(models_df, manufacturer)
+        model = st.selectbox('Select a model:', sorted(set(models_list)))
+        
+        result = alnes.getModelStatistics(models_df, model)
+        st.bar_chart(result, x='year', y='numModels', use_container_width=True)
+        # st.table(result.set_index(result.columns[0]))
+            
+elif add_selectbox == 'General Information of **Flights**':
+    st.header('General Information of flights')
     
     c_1 = st.container()
     
@@ -90,7 +120,6 @@ elif add_selectbox == 'General Information of **Airlines**':
             dest = st.selectbox('Select Arrival Airport:',dest_list)
         
         with cols[1]:
-            st.subheader('General Information of the flight')
             st.write('Distance of flight:',af.get_geodesicDistance(origin, dest),'km')
             st.write('Time of flight:', af.get_airtime(origin, dest),'minutes')
             st.write('Altitude difference between:', af.get_altdiff(origin, dest),'m')
@@ -119,7 +148,7 @@ elif add_selectbox == 'General Information of **Airlines**':
         st.altair_chart(bar_chart,use_container_width=True)  
         
 elif add_selectbox == 'General Information of **Airports**':
-    st.title('General Information of airports')
+    st.header('General Information of airports')
 
     c_1 = st.container(border=True)
         
@@ -176,7 +205,7 @@ elif add_selectbox == 'General Information of **Airports**':
             st.table(result.set_index(result.columns[0]))
             
 elif add_selectbox == 'General Information of **Weather**':
-    st.title('General Information of weather')
+    st.header('General Information of weather')
 
     c_2 = st.container()
         
@@ -189,7 +218,7 @@ elif add_selectbox == 'General Information of **Weather**':
             
         with cols[1]:
             fig, result = wthr.hourlyAverage(month_list)
-            st.write('**Average**')
+            st.write(f'***Average*** of {season}')
             st.write('Wind Speed:',round(result['wind_speed'],3),'m/s')
             st.write('Wind Gust:',round(result['wind_gust'],3), 'm/s')
             st.write('Visibility:',round(result['visib'],3),'m')     
