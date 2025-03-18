@@ -77,75 +77,6 @@ elif add_selectbox == 'Among of delay flights':
             amount = pt3.amongOfDelayFlights(start_month, end_month, dest)
             
             st.write('For destination',dest,'during month',input_start_month,'to',input_end_month,', the amount of delay flights is',amount,'.')
-
-elif add_selectbox == 'General Information of **Airlines**':
-    st.header('General Information of airlines')
-    
-    c_1 = st.container()
-    
-    with c_1:
-        temp = alnes.getAirlines_list()
-        joined_df = temp[['carrier','name']].agg('-'.join, axis=1)
-
-        airline = st.selectbox('Select an airline:', sorted(set(joined_df)))
-        airline_abbrv = airline[:2]
-        airline_fullName = airline[3:]
-        
-    c_2 = st.container()
-    
-    with c_2:
-        models_df, numOfPlanes, numOfUniqueModels, manufacturers_list = alnes.getAllTailnum(airline_abbrv)
-        st.write(airline_fullName,'has total', numOfPlanes,'planes. ',numOfUniqueModels,'different models are provided.')
-
-        manufacturer = st.selectbox('Select a model:', sorted(set(manufacturers_list)))
-        
-        models_list = alnes.getModelsList(models_df, manufacturer)
-        model = st.selectbox('Select a model:', sorted(set(models_list)))
-        
-        result = alnes.getModelStatistics(models_df, model)
-        st.bar_chart(result, x='year', y='numModels', use_container_width=True)
-        # st.table(result.set_index(result.columns[0]))
-            
-elif add_selectbox == 'General Information of **Flights**':
-    st.header('General Information of flights')
-    
-    c_1 = st.container()
-    
-    with c_1:
-        cols = st.columns((4, 4), gap = 'medium')
-        
-        with cols[0]:
-            origin = st.selectbox('Select Departure Airport:',['EWR', 'LGA', 'JFK'])
-            dest_list = sorted(pt3.unique_arrive_airports_input(origin))
-            dest = st.selectbox('Select Arrival Airport:',dest_list)
-        
-        with cols[1]:
-            st.write('Distance of flight:',af.get_geodesicDistance(origin, dest),'km')
-            st.write('Time of flight:', af.get_airtime(origin, dest),'minutes')
-            st.write('Altitude difference between:', af.get_altdiff(origin, dest),'m')
-            
-    
-    c_2 = st.container(border=True)
-    
-    with c_2:
-        fig = af.drawOneFlight(origin, dest)
-        st.plotly_chart(fig, use_container_width=True)
-        
-        result = af.available_carrier(origin, dest)
-        st.table(result.set_index(result.columns[0]))
-        
-        carrier = st.radio('Select an airline:', set(result['carrier']))
-    
-        numPlanes, new_result = af.available_plane_model(origin, dest, carrier)
-        st.write('There are',numPlanes, 'planes served by', carrier+'.')
-        
-        result, bar_result = af.check_plane_model(list(new_result['tailnum']))
-        
-        st.write('There are',len(result),'unique models:')
-        st.table(result.set_index(result.columns[0]))
-        
-        bar_chart = alt.Chart(bar_result, title='Number of planes in each year').mark_bar().encode(x='year', y='numModels')
-        st.altair_chart(bar_chart,use_container_width=True)  
         
 elif add_selectbox == 'General Information of **Airports**':
     st.header('General Information of airports')
@@ -203,6 +134,71 @@ elif add_selectbox == 'General Information of **Airports**':
             st.plotly_chart(fig, use_container_width=True)
             result = result.drop(columns=['origin'])
             st.table(result.set_index(result.columns[0]))
+            
+elif add_selectbox == 'General Information of **Airlines**':
+    st.header('General Information of airlines')
+    
+    c_1 = st.container()
+    
+    with c_1:
+        temp = alnes.getAirlines_list()
+        joined_df = temp[['carrier','name']].agg('-'.join, axis=1)
+
+        airline = st.selectbox('Select an airline:', sorted(set(joined_df)))
+        airline_abbrv = airline[:2]
+        airline_fullName = airline[3:]
+        
+    c_2 = st.container()
+    
+    with c_2:
+        models_df, numOfPlanes, numOfUniqueModels, manufacturers_list = alnes.getAllTailnum(airline_abbrv)
+        st.write(airline_fullName,'has total', numOfPlanes,'planes. ',numOfUniqueModels,'different models are provided.')
+
+        manufacturer = st.selectbox('Select a model:', sorted(set(manufacturers_list)))
+        
+        models_list = alnes.getModelsList(models_df, manufacturer)
+        model = st.selectbox('Select a model:', sorted(set(models_list)))
+        
+        fig = alnes.getModelStatistics(models_df, model)
+        st.plotly_chart(fig, use_container_width=True)
+        
+elif add_selectbox == 'General Information of **Flights**':
+    st.header('General Information of flights')
+    
+    c_1 = st.container()
+    
+    with c_1:
+        cols = st.columns((4, 4), gap = 'medium')
+        
+        with cols[0]:
+            origin = st.selectbox('Select Departure Airport:',['EWR', 'LGA', 'JFK'])
+            dest_list = sorted(pt3.unique_arrive_airports_input(origin))
+            dest = st.selectbox('Select Arrival Airport:',dest_list)
+        
+        with cols[1]:
+            st.write('Distance of flight:',af.get_geodesicDistance(origin, dest),'km')
+            st.write('Time of flight:', af.get_airtime(origin, dest),'minutes')
+            st.write('Altitude difference between:', af.get_alt_diff(origin, dest),'m')
+            st.write('Time zone difference between:', af.get_tz_diff(origin, dest),'hours')
+    
+    c_2 = st.container(border=True)
+    
+    with c_2:
+        fig = af.drawOneFlight(origin, dest)
+        st.plotly_chart(fig, use_container_width=True)
+        
+        result = af.available_carrier(origin, dest)
+        st.table(result.set_index(result.columns[0]))
+        
+        carrier = st.radio('Select an airline:', set(result['carrier']))
+    
+        numPlanes, new_result = af.available_plane_model(origin, dest, carrier)
+        st.write('There are',numPlanes, 'planes served by', carrier+'.')
+        
+        result, bar_result = af.check_plane_model(list(new_result['tailnum']))
+        
+        st.write('There are',len(result),'unique models:')
+        st.table(result.set_index(result.columns[0]))
             
 elif add_selectbox == 'General Information of **Weather**':
     st.header('General Information of weather')
