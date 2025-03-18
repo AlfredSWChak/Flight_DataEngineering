@@ -196,7 +196,7 @@ def get_airtime(origin, dest):
     
     return result
 
-def get_altdiff(origin, dest):
+def get_alt_diff(origin, dest):
     
     keys = [origin, dest]
     
@@ -207,6 +207,19 @@ def get_altdiff(origin, dest):
     
     result = abs(airports_df['alt'][0] - airports_df['alt'][1])
     result = round(result,0)
+    
+    return result
+
+def get_tz_diff(origin, dest):
+    
+    keys = [origin, dest]
+    
+    query = f'SELECT * FROM airports WHERE faa IN ({','.join(['?']*len(keys))})'
+    cursor.execute(query, keys)
+    rows = cursor.fetchall()
+    airports_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    
+    result = airports_df['tz'][0] - airports_df['tz'][1]
     
     return result
 

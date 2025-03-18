@@ -45,12 +45,12 @@ def hourlyAverage(month_list):
     
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=result_df['hour'], y=result_df['wind_speed'], name='Wind Speed',
-                         line=dict(color='blue', width=2, dash='dot')))
+                         line=dict(color='blue', width=2, dash='dot'), mode='lines+markers'))
     fig.add_trace(go.Scatter(x=result_df['hour'], y=result_df['wind_gust'], name='Wind Gust',
-                         line=dict(color='red', width=2, dash='dot')))
+                         line=dict(color='red', width=2, dash='dot'), mode='lines+markers'))
     fig.add_trace(go.Scatter(x=result_df['hour'], y=result_df['visib'], name='Visib',
-                         line=dict(color='green', width=2, dash='dot')))
-    fig.update_layout(title='Visibility of each hour in JFK')
+                         line=dict(color='green', width=2, dash='dot'), mode='lines+markers'))
+    fig.update_layout(title='Weather information in each hour in JFK')
 
     # fig.show()
     

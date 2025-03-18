@@ -54,4 +54,6 @@ def getModelStatistics(models_df, model):
     count_year_df = new_models_df.groupby(by=['year']).size().reset_index(name='numModels')
     count_year_df = count_year_df.sort_values(by=['year'], ascending=False)
     
-    return count_year_df
+    fig = px.pie(count_year_df, values='numModels', names='year', title='Number of planes with different years', color_discrete_sequence=px.colors.sequential.Aggrnyl)
+    
+    return fig
