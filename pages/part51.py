@@ -8,7 +8,7 @@ import part1 as pt1
 import part3 as pt3
 import part4 as pt4
 
-connection = sqlite3.connect('flights_database.db')
+connection = sqlite3.connect('flights_database.db', check_same_thread=False)
 cursor = connection.cursor()
 
 def get_flight_data():

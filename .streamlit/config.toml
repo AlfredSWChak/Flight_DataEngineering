@@ -1,9 +1,8 @@
 [theme]
-base="dark"
-primaryColor="#00f9ff"
-backgroundColor="#2f2f31"
-secondaryBackgroundColor="#619fff"
-
+primaryColor="#bcffff"
+backgroundColor="#8c8c8c"
+secondaryBackgroundColor="#ffffff"
+textColor="#060606"
 
 [client]
-showSidebarNavigation=false
+showSidebarNavigation=false 	

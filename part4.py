@@ -3,7 +3,7 @@ from datetime import datetime
 import part3 as pt3
 import pandas as pd
 
-connection = sqlite3.connect('flights_database.db')
+connection = sqlite3.connect('flights_database.db', check_same_thread=False)
 cursor = connection.cursor()
 
 def check_na_flights():
