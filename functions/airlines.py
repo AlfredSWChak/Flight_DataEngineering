@@ -6,7 +6,7 @@ import plotly.graph_objects as go
 import pandas as pd
 import numpy as np
 
-connection = sqlite3.connect('flights_database.db')
+connection = sqlite3.connect('flights_database.db', check_same_thread=False)
 cursor = connection.cursor()
 
 def getAirlines_list():

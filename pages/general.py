@@ -158,7 +158,7 @@ elif add_selectbox == 'General Information of **Airlines**':
         st.write(airline_fullName,'has total', numOfPlanes,'planes. ',numOfUniqueModels,'different models are provided.')
         
         manufacturer, model, numModel, year = alnes.getOldestModels(count_years_df)
-        st.write(f'The oldest plane model is **{manufacturer}-{model}**. There are',numModel,'models made in',str(year),'.')
+        st.write(f'The oldest plane model is **{manufacturer}-{model}**. There are',numModel, 'models made in',str(year),'.')
             
         manufacturer, model, numModel, year = alnes.getYoungestModels(count_years_df)
         st.write(f'The youngest plane model is **{manufacturer}-{model}**. There are',numModel,'models made in',str(year),'.')
@@ -168,7 +168,9 @@ elif add_selectbox == 'General Information of **Airlines**':
         cols = st.columns(2, gap = 'small')
         
         with cols[0]:
-            st.table(unique_models_df.set_index(unique_models_df.columns[0]))
+            unique_models_df_copy = unique_models_df.copy()
+            unique_models_df_copy.columns = ['Manufacturer', 'Model', 'Seats', 'Number of planes']
+            st.table(unique_models_df_copy.set_index(unique_models_df_copy.columns[0]))
         with cols[1]:
             st.bar_chart(data=unique_models_df, x='model', y='numModels', horizontal=True, use_container_width=True)
               

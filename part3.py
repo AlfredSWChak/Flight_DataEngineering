@@ -6,7 +6,7 @@ import math
 import seaborn as sns
 import part1 as pt1
 
-connection = sqlite3.connect('flights_database.db')
+connection = sqlite3.connect('flights_database.db', check_same_thread=False)
 cursor = connection.cursor()
 
 # There are five tables: {airlines, airports, flights, planes, weather}
