@@ -51,7 +51,6 @@ def hourlyAverage(month_list):
     fig.add_trace(go.Scatter(x=result_df['hour'], y=result_df['visib'], name='Visib',
                          line=dict(color='green', width=2, dash='dot'), mode='lines+markers'))
     fig.update_layout(title='Weather information in each hour in JFK')
-
-    # fig.show()
+    fig.update_layout(plot_bgcolor='white')
     
     return fig, seasonal_result_df

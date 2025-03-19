@@ -91,4 +91,7 @@ def main():
 if __name__ == "__main__":
     main()
 
+bkhm = st.sidebar.button("Back to home page", icon='🔙') 
 
+if bkhm:
+    st.switch_page("home.py")

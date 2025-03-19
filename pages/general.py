@@ -3,8 +3,8 @@ import altair as alt
 import alfred_function as af
 import part1 as pt1
 import part3 as pt3
-import weather as wthr
-import airlines as alnes
+import functions.airlines as alnes
+import functions.flights as flt
 import calendar
 from datetime import datetime
 
@@ -13,7 +13,7 @@ st.sidebar.title('Functions')
 options_set = ('General Information of **Airports**',
                'General Information of **Airlines**',
                'General Information of **Flights**',
-               'General Information of **Weather**',
+            #    'General Information of **Weather**',
                'Flight statistics on specific day',
                'Among of delay flights')
 month_list = list(calendar.month_name)[1:]
@@ -85,8 +85,11 @@ elif add_selectbox == 'General Information of **Airports**':
         
     with c_1:
         fig = pt1.showAllAirports()
-        area = st.radio('Select a scope:', ('World', 'USA', 'Europe', 'Asia', 'Africa', 'North America', 'South America'), horizontal=True)
+        area = st.radio('Select a scope:', ('World', 'USA'
+                                            # , 'Europe', 'Asia', 'Africa', 'North America', 'South America'
+                                            ), horizontal=True)
         fig.update_layout(geo_scope=area.lower())
+        fig.update_layout(dragmode=False)
         st.plotly_chart(fig, use_container_width=True)
         
     st.subheader('Airport General Information')
@@ -151,15 +154,30 @@ elif add_selectbox == 'General Information of **Airlines**':
     c_2 = st.container()
     
     with c_2:
-        models_df, numOfPlanes, numOfUniqueModels, manufacturers_list = alnes.getAllTailnum(airline_abbrv)
+        unique_models_df, numOfPlanes, numOfUniqueModels, count_years_df = alnes.getAllTailnum(airline_abbrv)
         st.write(airline_fullName,'has total', numOfPlanes,'planes. ',numOfUniqueModels,'different models are provided.')
-
-        manufacturer = st.selectbox('Select a model:', sorted(set(manufacturers_list)))
         
-        models_list = alnes.getModelsList(models_df, manufacturer)
-        model = st.selectbox('Select a model:', sorted(set(models_list)))
+        manufacturer, model, numModel, year = alnes.getOldestModels(count_years_df)
+        st.write(f'The oldest plane model is **{manufacturer}-{model}**. There are',numModel,'models made in',str(year),'.')
+            
+        manufacturer, model, numModel, year = alnes.getYoungestModels(count_years_df)
+        st.write(f'The youngest plane model is **{manufacturer}-{model}**. There are',numModel,'models made in',str(year),'.')
         
-        fig = alnes.getModelStatistics(models_df, model)
+        # st.table(count_years_df.set_index(count_years_df.columns[0]))
+        
+        cols = st.columns(2, gap = 'small')
+        
+        with cols[0]:
+            st.table(unique_models_df.set_index(unique_models_df.columns[0]))
+        with cols[1]:
+            st.bar_chart(data=unique_models_df, x='model', y='numModels', horizontal=True, use_container_width=True)
+              
+        # manufacturer = st.selectbox('Select a model:', sorted(set(manufacturers_list)))
+        
+        # models_list = alnes.getModelsList(models_df, manufacturer)
+        # model = st.selectbox('Select a model:', sorted(set(models_list)))
+        
+        fig = alnes.getModelStatistics(unique_models_df)
         st.plotly_chart(fig, use_container_width=True)
         
 elif add_selectbox == 'General Information of **Flights**':
@@ -168,7 +186,7 @@ elif add_selectbox == 'General Information of **Flights**':
     c_1 = st.container()
     
     with c_1:
-        cols = st.columns((4, 4), gap = 'medium')
+        cols = st.columns(3, gap = 'small')
         
         with cols[0]:
             origin = st.selectbox('Select Departure Airport:',['EWR', 'LGA', 'JFK'])
@@ -180,6 +198,20 @@ elif add_selectbox == 'General Information of **Flights**':
             st.write('Time of flight:', af.get_airtime(origin, dest),'minutes')
             st.write('Altitude difference between:', af.get_alt_diff(origin, dest),'m')
             st.write('Time zone difference between:', af.get_tz_diff(origin, dest),'hours')
+        
+        with cols[2]:
+            avg_dep_delay, avg_arr_delay = flt.averageDelay(origin, dest)
+            
+            st.write('Average ***Departure*** Delay:', avg_dep_delay,'min')
+            st.write('Average ***Arrival*** Delay:', avg_arr_delay,'min')
+            
+            numFlights_month = flt.flightsPerMonth(origin,dest)
+            
+            st.write('Flights per ***Month***:', numFlights_month)
+            
+            numFlights_day = flt.flightsPerDay(origin,dest)
+            
+            st.write('Flights per ***Day***:', numFlights_day)
     
     c_2 = st.container(border=True)
     
@@ -188,7 +220,7 @@ elif add_selectbox == 'General Information of **Flights**':
         st.plotly_chart(fig, use_container_width=True)
         
         result = af.available_carrier(origin, dest)
-        st.table(result.set_index(result.columns[0]))
+        # st.table(result.set_index(result.columns[0]))
         
         carrier = st.radio('Select an airline:', set(result['carrier']))
     
@@ -199,28 +231,8 @@ elif add_selectbox == 'General Information of **Flights**':
         
         st.write('There are',len(result),'unique models:')
         st.table(result.set_index(result.columns[0]))
-            
-elif add_selectbox == 'General Information of **Weather**':
-    st.header('General Information of weather')
 
-    c_2 = st.container()
-        
-    with c_2:
-        cols = st.columns((4, 4), gap = 'medium')
-        
-        with cols[0]:
-            season = st.radio('Select a season:', ('Whole year', 'Spring (March, April, May)', 'Summer (June, July, August)', 'Autumn (September, October, November)', 'Winter (December, Janurary, Feburary)'), horizontal=False)
-            month_list = wthr.getMonth(season)
-            
-        with cols[1]:
-            fig, result = wthr.hourlyAverage(month_list)
-            st.write(f'***Average*** of {season}')
-            st.write('Wind Speed:',round(result['wind_speed'],3),'m/s')
-            st.write('Wind Gust:',round(result['wind_gust'],3), 'm/s')
-            st.write('Visibility:',round(result['visib'],3),'m')     
+bkhm = st.sidebar.button("Back to home page", icon='🔙') 
 
-    c_1 = st.container(border=True)
-        
-    with c_1:
-        st.plotly_chart(fig, use_container_width=True)
-            
+if bkhm:
+    st.switch_page("home.py") 
