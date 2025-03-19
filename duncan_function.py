@@ -5,7 +5,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import math 
 
-connection = sqlite3.connect('flights_database.db')
+connection = sqlite3.connect('flights_database.db', check_same_thread=False)
 cursor = connection.cursor()
 
 def busiest_routes():

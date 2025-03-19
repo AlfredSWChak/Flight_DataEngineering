@@ -2,7 +2,7 @@ faa,name,lat,lon,alt,tz,dst,tzone
 AAF,Apalachicola Regional Airport,29.72750092,-85.02749634,20.0,-5.0,A,America/New_York
 AAP,Andrau Airpark,29.7224998474,-95.5883026123,79.0,-6.0,A,America/Chicago
 ABE,Lehigh Valley International Airport,40.652099609375,-75.44080352783203,393.0,-5.0,A,America/New_York
-ABI,Abilene Regional Airport,32.4113006592,-99.6819000244,1791.0,-6.0,A,America/Chicago
+ABI,Abilene Regional Airport,32.4113006592,-99.6819000244,1791.0,-6.0,A,America/Chicago 
 ABL,Ambler Airport,67.1063,-157.856989,334.0,-9.0,A,America/Anchorage
 ABQ,Albuquerque International Sunport,35.040199,-106.609001,5355.0,-7.0,A,America/Denver
 ABR,Aberdeen Regional Airport,45.449100494384766,-98.42179870605467,1302.0,-6.0,A,America/Chicago

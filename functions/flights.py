@@ -8,7 +8,7 @@ import numpy as np
 import seaborn as sns
 import calendar
 
-connection = sqlite3.connect('flights_database.db')
+connection = sqlite3.connect('flights_database.db', check_same_thread=False)
 cursor = connection.cursor()
 
 def averageDelay(origin,dest):

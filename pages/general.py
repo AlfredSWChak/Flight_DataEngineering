@@ -10,12 +10,12 @@ from datetime import datetime
 
 st.sidebar.title('Functions')
 
-options_set = ('General Information of **Airports**',
-               'General Information of **Airlines**',
-               'General Information of **Flights**',
-            #    'General Information of **Weather**',
+options_set = ('General Information of Airports',
+               'General Information of Airlines',
+               'General Information of Flights',
+            #    'General Information of Weather',
                'Flight statistics on specific day',
-               'Among of delay flights')
+               'Amount of delay for flights')
 month_list = list(calendar.month_name)[1:]
 
 add_selectbox = st.sidebar.radio('Options', 
@@ -37,7 +37,7 @@ if add_selectbox == 'Flight statistics on specific day':
     with c_1:
         date = st.date_input('Select a date', value=None)
         airport = st.selectbox('Select a airport',['EWR', 'LGA', 'JFK'])
-        button_clicked = st.button('Submit')
+        button_clicked = st.button('Select')
         
     c_2 = st.container(border=True)  
         
@@ -158,7 +158,7 @@ elif add_selectbox == 'General Information of **Airlines**':
         st.write(airline_fullName,'has total', numOfPlanes,'planes. ',numOfUniqueModels,'different models are provided.')
         
         manufacturer, model, numModel, year = alnes.getOldestModels(count_years_df)
-        st.write(f'The oldest plane model is **{manufacturer}-{model}**. There are',numModel,'models made in',str(year),'.')
+        st.write(f'The oldest plane model is **{manufacturer}-{model}**. There are rainbow ',numModel,' models made in',str(year),'.')
             
         manufacturer, model, numModel, year = alnes.getYoungestModels(count_years_df)
         st.write(f'The youngest plane model is **{manufacturer}-{model}**. There are',numModel,'models made in',str(year),'.')
