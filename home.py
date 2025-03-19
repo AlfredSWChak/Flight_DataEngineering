@@ -1,14 +1,15 @@
 import streamlit as st
 import alfred_function as af
 import part1 as pt1
+import functions.weather as wthr
 
 st.set_page_config(page_title = 'Project Flights', 
                    layout = 'wide', 
                    initial_sidebar_state = 'expanded')
 
-st.sidebar.page_link('home.py', label='Home Page')
-st.sidebar.page_link('pages/part51.py', label='Lans Function')
-st.sidebar.page_link('pages/general.py', label='General Information')
+st.sidebar.page_link('home.py', label='Home Page', icon='🏠')
+st.sidebar.page_link('pages/general.py', label='General Information', icon='ℹ️')
+st.sidebar.page_link('pages/part51.py', label='Delay Analysis', icon='⁉️')
 
 st.title('General Information of JFK airport')
 
@@ -50,3 +51,26 @@ with c_3:
         st.write('Number of planes:',model_row['numPlanes'].iloc[0])
    
     st.table(result.set_index(result.columns[0]))
+    
+st.header('General Information of weather of JFK')
+
+c_2 = st.container()
+        
+with c_2:
+    cols = st.columns((4, 4), gap = 'medium')
+    
+    with cols[0]:
+        season = st.radio('Select a season:', ('Whole year', 'Spring (March, April, May)', 'Summer (June, July, August)', 'Autumn (September, October, November)', 'Winter (December, Janurary, Feburary)'), horizontal=False)
+        month_list = wthr.getMonth(season)
+        
+    with cols[1]:
+        fig, result = wthr.hourlyAverage(month_list)
+        st.write(f'***Average*** of {season}')
+        st.write('Wind Speed:',round(result['wind_speed'],3),'m/s')
+        st.write('Wind Gust:',round(result['wind_gust'],3), 'm/s')
+        st.write('Visibility:',round(result['visib'],3),'m')     
+
+c_4 = st.container(border=True)
+    
+with c_4:
+    st.plotly_chart(fig, use_container_width=True)
