@@ -158,7 +158,7 @@ elif add_selectbox == 'General Information of **Airlines**':
         st.write(airline_fullName,'has total', numOfPlanes,'planes. ',numOfUniqueModels,'different models are provided.')
         
         manufacturer, model, numModel, year = alnes.getOldestModels(count_years_df)
-        st.write(f'The oldest plane model is **{manufacturer}-{model}**. There are rainbow ',numModel,' models made in',str(year),'.')
+        st.write(f'The oldest plane model is **{manufacturer}-{model}**. There are',numModel,' models made in',str(year),'.')
             
         manufacturer, model, numModel, year = alnes.getYoungestModels(count_years_df)
         st.write(f'The youngest plane model is **{manufacturer}-{model}**. There are',numModel,'models made in',str(year),'.')
