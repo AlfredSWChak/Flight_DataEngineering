@@ -16,31 +16,38 @@ This project is part of a larger effort to monitor and analyze flight data, leve
 📂 flight-monitoring
 │── 📜 README.md                 # Documentation file  
 │── 📜 part1.py                  # Flight visualizations (Plotly)  
-│── 📜 part3.py                  # Database queries (SQLite)  
+│── 📜 part3.py                  # Database queries (SQLite)
+│── 📜 part4.py                  # Streamlit application
 │── 📜 core.py                   # Core functions  
 │── 📜 flights_database.db       # SQLite database  
-│── 📜 airports_original.csv     # Airport dataset  
+│── 📜 airports_original.csv     # Airport dataset
+── 📂 functions                  # Modular function scripts  
+│    ├── airlines.py             # Airline-related functions  
+│    ├── flights.py              # Flight statistics functions   
 │── 📜 (More files coming...)  
 ```
 ## Features
-### 1. Airport Maps
+### 1. Interactive Web Application(Streamlit)
+- **General Airport Information**: Displays airport locations, altitude, and time zones.
+- **General Airline Information**: Analyze airline operations, aircraft models, and fleet statistics.
+- **General Flight Information**: Retrieves flight routes, delays, and usage statistics.
+- **Flight Statistics on Specific Days**: Analyzes daily flight trends at major NYC sirports.
+- **Delayed Flight Analysis**: Compute the number of delayed flights within a selected date range.
+### 2. Airport Maps & Visualizations
 - **Global Airport Map**: Plots all airports from the dataset.
-- **US Airport Map**: Filters and displays only US airports.
+- **US airport Map**: Fliters and displays only US airports.
 - **Altitude Color Coding**: Airports are color-coded based on altitude.
 
-### 2. Flight Path Visualization
-- **Single Airport Flight Path**: A function to draw a flight path from NYC to a specified airport.
-- **Multiple Flight Paths**: Extends the function to accept a list of airport FAA codes and draw multiple flight paths from NYC.
+### 3. Flight Path Visualization
+- **Single Airport Flight Path**: Show a flight path from JFK to other specified airports on a single day.
+- **Multiple Flight Paths**:
 
-### 3. Distance Calculations
+### 4. Distance Calculations
 - **Euclidean Distance**: Computes the Euclidean distance from each airport to JFK.
 - **Geodesic Distance**: Calculates a more accurate great-circle distance.
 - **Distance Distribution**: Visualizes the distribution of distances.
 
-### 4. Time Zone Analysis
-- **Time Zone Graph**: Analyzes and visualizes airports based on their time zones.
-
-### 5. Databse Queries
+### 5. Databse Queries & Flight Analysis
 - ** Retrieve flight data: Query flights based on various parameters.
 - ** Analyze airline operations: Investigate departure trends delays.
 - ** Aircraft model insights: Assess aircraft usage for different rountes.
@@ -53,14 +60,14 @@ This project is part of a larger effort to monitor and analyze flight data, leve
 ### Dependencies
 Ensure you have the required libraries installed before running the script:
 ```sh
-pip install pandas numpy plotly matplotlib seaborn
+pip install pandas numpy plotly matplotlib seaborn streamlit altair
 ```
 
 ## Running the Script
 
 Execute the script to generate all visualizations:
 ```sh
-  python flights.py
+  stream run home.py
 ```
 
 ## Example Usage
@@ -109,7 +116,7 @@ This project includes an SQLite database (```flights_database.db```) that provid
 
 ## Contributors
 Group FLights 10
-Lan, Alfred, Adele, Duncan
+Alfred, Adele, Duncan, Lan
 ```
 
 ## References
