@@ -248,7 +248,7 @@ elif add_selectbox == 'General Information of **Flights**':
 elif add_selectbox == 'Flight statistics for delay':
     st.header('Flight Statistics for Delay')
 
-    origin = st.selectbox('Select Departture Airport:', ['EWR', 'LGA', 'JKF'])
+    origin = st.selectbox('Select Departture Airport:', ['EWR', 'LGA', 'JFK'])
     destination_options = flt.get_all_destinations(origin)
     dest = st.selectbox('Select Destination Airport:', destination_options)
 
@@ -262,16 +262,26 @@ elif add_selectbox == 'Flight statistics for delay':
         st.write(f"Average Flight Time: {filtered_df['air_time'].mean():.2f} minutes")
         st.write(f"Average Delay: {filtered_df['dep_delay'].mean():.2f} minutes")
 
-        st.subheader("Flights per Month")
+        st.subheader(f"Flight per Month from {origin} to {dest}")
+        flights_per_month = filtered_df['month'].value_counts().sort_index()
+        st.bar_chart(flights_per_month)
+
+        st.subheader(f"Total Delay per Month from {origin} to {dest}")
+        delay_per_month = filtered_df.groupby('month')['dep_delay'].sum().sort_index()
+        st.bar_chart(delay_per_month)
+
+        st.subheader("Total Flights per Month for all airports")
         flights_per_month = flights_df['month'].value_counts().sort_index()
         st.bar_chart(flights_per_month)
 
-        st.subheader("Total Delay per Month")
+        st.subheader("Total Delay per Month for all airports")
         delay_per_month = flights_df.groupby('month')['dep_delay'].sum().sort_index()
         st.bar_chart(delay_per_month)
 
     else:
         st.write("No flight data found for the selected route.")
+
+
 
 bkhm = st.sidebar.button("Back to home page", icon='🔙') 
 

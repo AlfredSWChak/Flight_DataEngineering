@@ -149,3 +149,25 @@ def get_flight_data():
 
     flights_df = pd.DataFrame(rows, columns=[x[0] for x in cursor.description])
     return flights_df
+
+def flightsPerMonthByOrigin(origin):
+    query = 'SELECT month, COUNT(*) FROM flights WHERE origin = ? GROUP BY month ORDER BY month'
+    cursor.execute(query, (origin,))
+    rows = cursor.fetchall()
+    flights_df = pd.DataFrame(rows, columns=['month', 'num_flights'])
+    return flights_df
+
+def totalDelayPerMonthByOrigin(origin):
+    query = 'SELECT month, SUM(dep_delay + arr_delay) FROM flights WHERE origin = ? GROUP BY month ORDER BY month'
+    cursor.execute(query, (origin,))
+    rows = cursor.fetchall()
+    delay_df = pd.DataFrame(rows, columns=['month', 'total_delay'])
+    return delay_df
+
+def get_all_destinations(origin):
+    query = "SELECT DISTINCT dest FROM flights WHERE origin = ?"
+    cursor.execute(query, (origin,))
+    rows = cursor.fetchall()
+
+    destinations = [row[0] for row in rows]
+    return destinations
