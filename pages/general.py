@@ -262,17 +262,18 @@ elif add_selectbox == 'Flight statistics for delay':
         st.write(f"Average Flight Time: {filtered_df['air_time'].mean():.2f} minutes")
         st.write(f"Average Delay: {filtered_df['dep_delay'].mean():.2f} minutes")
 
-        st.subheader(f"Flight per Month from {origin} to {dest}")
+        st.subheader(f"Flight per Month from {origin}")
         flights_per_month = filtered_df['month'].value_counts().sort_index()
         st.bar_chart(flights_per_month)
-
-        st.subheader(f"Total Delay per Month from {origin} to {dest}")
-        delay_per_month = filtered_df.groupby('month')['dep_delay'].sum().sort_index()
-        st.bar_chart(delay_per_month)
 
         st.subheader("Total Flights per Month for all airports")
         flights_per_month = flights_df['month'].value_counts().sort_index()
         st.bar_chart(flights_per_month)
+
+        st.subheader(f"Total Delay per Month from {origin}")
+        delay_per_month = filtered_df.groupby('month')['dep_delay'].sum().sort_index()
+        st.bar_chart(delay_per_month)
+
 
         st.subheader("Total Delay per Month for all airports")
         delay_per_month = flights_df.groupby('month')['dep_delay'].sum().sort_index()
