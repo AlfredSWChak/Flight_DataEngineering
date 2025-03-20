@@ -14,7 +14,7 @@ options_set = ('General Information of **Airports**',
                'General Information of **Airlines**',
                'General Information of **Flights**',
                'Flight statistics on a specific day',
-               'Amount of delay for flights')
+               'Delay analysis - Possible causes: Weather 🌦️')
 month_list = list(calendar.month_name)[1:]
 
 add_selectbox = st.sidebar.radio('Options', 
@@ -56,8 +56,8 @@ if add_selectbox == 'Flight statistics on a specific day':
             
             st.plotly_chart(fig, use_container_width=True)
         
-elif add_selectbox == 'Amount of delay for flights':
-    st.header('Amount of delay for flights')
+elif add_selectbox == 'Delay analysis - Possible causes: Weather 🌦️':
+    st.header('Delay analysis - Possible causes: Weather 🌦️')
     
     origin = st.selectbox('Select Departure Airport:',['EWR', 'LGA', 'JFK'])
     dest_list = sorted(pt3.unique_arrive_airports_input(origin))
@@ -75,15 +75,19 @@ elif add_selectbox == 'Amount of delay for flights':
             
             start_month = datetime.strptime(input_start_month, '%B').month
             end_month = datetime.strptime(input_end_month, '%B').month
-            # amount = pt3.amongOfDelayFlights(start_month, end_month, dest)
             
-            fig, dest_direction, result = flt.delayDotProduct(start_month, end_month, origin, dest)
+            wind_fig, visib_fig, dest_direction, num_delay, num_non_delay = flt.delayDotProduct(start_month, end_month, origin, dest)
             
-            st.write('For destination',dest,'during month',input_start_month,'to',input_end_month,', the amount of delay flights is',len(result),'.')
-            st.write('The angle between is',dest_direction)
+            st.write('For destination',dest,'during month',input_start_month,'to',input_end_month,', the amount of flights is',num_delay+num_non_delay,'.')
+            st.write('There are',num_delay,'delay flights, and',num_non_delay,'non-delay flights.')
+            st.write(f'The angle between **{origin}** and **{dest}** is', round(dest_direction,2), 'degrees.')
             
-            st.plotly_chart(fig, use_container_width=True)
-            # st.table(result.set_index(result.columns[0]))
+            cols = st.columns(2, gap = 'small')
+        
+            with cols[0]:
+                st.plotly_chart(wind_fig, use_container_width=True)
+            with cols[1]:
+                st.plotly_chart(visib_fig, use_container_width=True)
   
 elif add_selectbox == 'General Information of **Airports**':
     st.header('General Information of airports')
