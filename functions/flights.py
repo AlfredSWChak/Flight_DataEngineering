@@ -63,6 +63,15 @@ def flightsPerDay(origin,dest):
     
     return result
 
+def getNonDelayFlight(start_month, end_month, origin, dest):
+    
+    query = f'SELECT * FROM flights WHERE origin = ? AND dest = ? AND dep_delay <= ? AND month >= ? AND month <= ?'
+    cursor.execute(query, [origin, dest, 0, start_month, end_month])
+    rows = cursor.fetchall()
+    non_delay_flights_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    
+    return non_delay_flights_df
+
 def delayDotProduct(start_month, end_month, origin, dest):
     
     query = f'SELECT dep_delay, origin, dest, tailnum, time_hour FROM flights WHERE origin = ? AND dest = ? AND dep_delay > ? AND month >= ? AND month <= ?'
@@ -77,6 +86,8 @@ def delayDotProduct(start_month, end_month, origin, dest):
     temp = delay_flights_df.copy().drop_duplicates(subset=['time_hour'])
     time_hour_list = delay_flights_df['time_hour'].tolist()
     delay_weather_df = wthr.getTimeHour_df(origin, time_hour_list)
+    
+    visib_fig = px.scatter(delay_weather_df, x='wind_speed', y='visib')
     
     temp = delay_flights_df.copy().drop_duplicates(subset=['tailnum'])
     tailnum_list = delay_flights_df['tailnum'].tolist()   
@@ -102,7 +113,23 @@ def delayDotProduct(start_month, end_month, origin, dest):
         
     new_delay_flights_df = delay_flights_df.assign(angleBetween = angle_list)
     new_delay_flights_df = new_delay_flights_df.assign(dotProduct = dot_product_list)
+        
+    wind_fig = px.scatter_polar(new_delay_flights_df, r='dotProduct', theta='angleBetween')
     
-    fig = px.scatter_polar(new_delay_flights_df, r='dotProduct', theta='angleBetween')
+    new_time_hour_list = getNonDelayFlight(start_month, end_month, origin, dest)['time_hour'].tolist()
     
-    return fig, dest_direction, new_delay_flights_df
+    non_delay_weather_df = wthr.getTimeHour_df(origin, new_time_hour_list)
+    non_delay_weather_visib_list = non_delay_weather_df['visib'].tolist()
+    
+    num_delay = len(new_delay_flights_df)
+    num_non_delay = len(new_time_hour_list)
+
+    visib_fig = go.Figure()
+    visib_fig.add_trace(go.Histogram(x=delay_weather_df['visib'], marker_color='rgb(26, 118, 255)', name='Delay'))
+    visib_fig.add_trace(go.Histogram(x=non_delay_weather_visib_list, marker_color='rgb(55, 83, 109)', name='Non-Delay'))
+    visib_fig.update_layout(bargap=0.2, bargroupgap=0.1)
+    
+    wind_fig.update_layout(title = f'Angle between flight direction and wind direction of delay flights')
+    visib_fig.update_layout(title = f'Visibility of flights')
+    
+    return wind_fig, visib_fig, dest_direction, num_delay, num_non_delay
