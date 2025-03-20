@@ -82,11 +82,6 @@ def main():
     monthly_flights = flights_df.groupby(['origin', 'month']).size().unstack(fill_value = 0)
     monthly_delay = flights_df.groupby(['origin', 'month'])['dep_delay'].sum().unstack(fill_value = 0)
 
-    st.subheader(f"Flights per Month")
-    st.bar_chart(monthly_flights)
-
-    st.subheader(f"Total Delay per Month")
-    st.bar_chart(monthly_delay)
 
 if __name__ == "__main__":
     main()

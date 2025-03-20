@@ -9,7 +9,7 @@ st.set_page_config(page_title = 'Project Flights',
 
 st.sidebar.page_link('home.py', label='Home Page', icon='🏠')
 st.sidebar.page_link('pages/general.py', label='General Information', icon='ℹ️')
-st.sidebar.page_link('pages/part51.py', label='Delay Analysis', icon='⁉️')
+# st.sidebar.page_link('pages/part51.py', label='Delay Analysis', icon='⁉️')
 
 st.title('General Information of JFK airport')
 
