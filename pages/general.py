@@ -13,7 +13,7 @@ st.sidebar.title('Functions')
 options_set = ('General Information of **Airports**',
                'General Information of **Airlines**',
                'General Information of **Flights**',
-               'Flight statistics on specific day',
+               'Flight statistics on a specific day',
                'Amount of delay for flights')
 month_list = list(calendar.month_name)[1:]
 
@@ -28,14 +28,14 @@ if 'clicked' not in st.session_state:
 def click_button():
     st.session_state.clicked = True
 
-if add_selectbox == 'Flight statistics on specific day':
-    st.header('Flight statistics on specific day')
+if add_selectbox == 'Flight statistics on a specific day':
+    st.header('Flight statistics on a specific day')
 
     c_1 = st.container()
         
     with c_1:
         date = st.date_input('Select a date', value=None, min_value='2023-01-01', max_value='2023-12-31')
-        airport = st.selectbox('Select a airport',['EWR', 'LGA', 'JFK'])
+        airport = st.selectbox('Select an airport',['EWR', 'LGA', 'JFK'])
         button_clicked = st.button('Select')
         
     c_2 = st.container(border=True)  
@@ -123,12 +123,12 @@ elif add_selectbox == 'General Information of **Airports**':
         fig.update_layout(dragmode=False)
         st.plotly_chart(fig, use_container_width=True)
         
-    st.subheader('Top five flights of selected airport(s)')
+    st.subheader('Top five common flights of selected airport(s)')
     
     c_2 = st.container()
         
     with c_2:
-        airport = st.selectbox('Select a deaprture airport',['EWR', 'LGA', 'JFK', 'All airports'])
+        airport = st.selectbox('Select a departure airport',['EWR', 'LGA', 'JFK', 'All airports'])
         button_clicked = st.button('Submit')   
        
     c_3 = st.container(border=True)
@@ -146,7 +146,7 @@ elif add_selectbox == 'General Information of **Airports**':
             st.table(result.set_index(result.columns[0]))
             
 elif add_selectbox == 'General Information of **Airlines**':
-    st.header('General Information of airlines')
+    st.header('General Information on airlines')
     
     c_1 = st.container()
     
@@ -165,10 +165,10 @@ elif add_selectbox == 'General Information of **Airlines**':
         st.write(airline_fullName,'has total', numOfPlanes,'planes. ',numOfUniqueModels,'different models are provided.')
         
         manufacturer, model, numModel, year = alnes.getOldestModels(count_years_df)
-        st.write(f'The oldest plane model is **{manufacturer}-{model}**. There are',numModel, 'models made in',str(year),'.')
+        st.write(f'The oldest plane model in use is **{manufacturer}-{model}**. There are',numModel, 'models made in',str(year),'.')
             
         manufacturer, model, numModel, year = alnes.getYoungestModels(count_years_df)
-        st.write(f'The youngest plane model is **{manufacturer}-{model}**. There are',numModel,'models made in',str(year),'.')
+        st.write(f'The youngest plane model in use is **{manufacturer}-{model}**. There are',numModel,'models made in',str(year),'.')
         
         # st.table(count_years_df.set_index(count_years_df.columns[0]))
         
@@ -190,7 +190,7 @@ elif add_selectbox == 'General Information of **Airlines**':
         st.plotly_chart(fig, use_container_width=True)
         
 elif add_selectbox == 'General Information of **Flights**':
-    st.header('General Information of flights')
+    st.header('General Information on flights')
     
     c_1 = st.container()
     
@@ -198,15 +198,15 @@ elif add_selectbox == 'General Information of **Flights**':
         cols = st.columns(3, gap = 'small')
         
         with cols[0]:
-            origin = st.selectbox('Select Departure Airport:',['EWR', 'LGA', 'JFK'])
+            origin = st.selectbox('Select a Departure Airport:',['EWR', 'LGA', 'JFK'])
             dest_list = sorted(pt3.unique_arrive_airports_input(origin))
-            dest = st.selectbox('Select Arrival Airport:',dest_list)
+            dest = st.selectbox('Select an Arrival Airport:',dest_list)
         
         with cols[1]:
-            st.write('Distance of flight:',af.get_geodesicDistance(origin, dest),'km')
-            st.write('Time of flight:', af.get_airtime(origin, dest),'minutes')
-            st.write('Altitude difference between:', af.get_alt_diff(origin, dest),'m')
-            st.write('Time zone difference between:', af.get_tz_diff(origin, dest),'hours')
+            st.write('Flight Distance:',af.get_geodesicDistance(origin, dest),'km')
+            st.write('Flight Time:', af.get_airtime(origin, dest),'minutes')
+            st.write('Altitude difference:', af.get_alt_diff(origin, dest),'m')
+            st.write('Time zone difference:', af.get_tz_diff(origin, dest),'hours')
         
         with cols[2]:
             avg_dep_delay, avg_arr_delay = flt.averageDelay(origin, dest)
