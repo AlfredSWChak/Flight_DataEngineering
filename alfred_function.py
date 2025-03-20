@@ -249,3 +249,34 @@ def getAirportInfo(airport):
     airport_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
     
     return airport_df
+
+def getTailnumPlanes(tailnum_list):
+    
+    query = f'SELECT * FROM planes WHERE tailnum IN ({','.join(['?']*len(tailnum_list))})'
+    cursor.execute(query, tailnum_list)
+    rows = cursor.fetchall()
+    planes_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    
+    return planes_df
+
+def getAngleBetween(origin, dest):
+    
+    faa_list = [origin, dest]
+    
+    query = f'SELECT faa, lat, lon FROM airports WHERE faa IN ({','.join(['?']*len(faa_list))})'
+    cursor.execute(query, faa_list)
+    rows = cursor.fetchall()
+    airports_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    
+    origin_lat = airports_df[airports_df['faa'] == origin]['lat'].iloc[0]
+    origin_lon = airports_df[airports_df['faa'] == origin]['lon'].iloc[0]
+    dest_lat = airports_df[airports_df['faa'] == dest]['lat'].iloc[0]
+    dest_lon = airports_df[airports_df['faa'] == dest]['lon'].iloc[0]
+    
+    delta_lon = (origin_lon - dest_lon)
+    y = float(math.cos(origin_lat) * math.sin(delta_lon))
+    x = float(math.cos(dest_lat) * math.sin(origin_lat) - math.sin(dest_lat) * math.cos(origin_lat) * math.cos(delta_lon))
+        
+    angle = math.degrees(math.atan2(y ,x))        
+    
+    return angle

@@ -37,10 +37,10 @@ c_3 = st.container(border=True)
 with c_3:
     result = af.top_five_planes()
     
-    cols = st.columns((4, 4, 4), gap = 'medium')
+    cols = st.columns(3, gap = 'small')
     with cols[0]:
         model = st.radio('Select a model:', set(result['model']))
-        model_row = result.loc[result['model'] > model]
+        model_row = result.loc[result['model'] == model]
     with cols[1]:
         st.write('Type:',model_row['type'].iloc[0])
         st.write('Number of engines:',model_row['engines'].iloc[0])
