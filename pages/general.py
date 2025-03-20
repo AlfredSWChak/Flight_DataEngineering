@@ -14,6 +14,7 @@ options_set = ('General Information of **Airports**',
                'General Information of **Airlines**',
                'General Information of **Flights**',
                'Flight statistics on a specific day',
+               'Flight statistics for delay',
                'Delay analysis - Possible causes: Weather 🌦️')
 month_list = list(calendar.month_name)[1:]
 
@@ -243,6 +244,34 @@ elif add_selectbox == 'General Information of **Flights**':
         
         st.write('There are',len(result),'unique models:')
         st.table(result.set_index(result.columns[0]))
+
+elif add_selectbox == 'Flight statistics for delay':
+    st.header('Flight Statistics for Delay')
+
+    origin = st.selectbox('Select Departture Airport:', ['EWR', 'LGA', 'JKF'])
+    destination_options = flt.get_all_destinations(origin)
+    dest = st.selectbox('Select Destination Airport:', destination_options)
+
+    flights_df = flt.get_flight_data()
+    filtered_df = flights_df[(flights_df['origin'] == origin) & (flights_df['dest'] == dest)]
+
+    if not filtered_df.empty:
+        st.subheader(f"Flight Delay Statistics from {origin} to {dest}")
+        st.write(f"Total Flights: {len(filtered_df)}")
+        st.write(f"Average Weekly Flights: {len(filtered_df) / 52:.2f}")
+        st.write(f"Average Flight Time: {filtered_df['air_time'].mean():.2f} minutes")
+        st.write(f"Average Delay: {filtered_df['dep_delay'].mean():.2f} minutes")
+
+        st.subheader("Flights per Month")
+        flights_per_month = flights_df['month'].value_counts().sort_index()
+        st.bar_chart(flights_per_month)
+
+        st.subheader("Total Delay per Month")
+        delay_per_month = flights_df.groupby('month')['dep_delay'].sum().sort_index()
+        st.bar_chart(delay_per_month)
+
+    else:
+        st.write("No flight data found for the selected route.")
 
 bkhm = st.sidebar.button("Back to home page", icon='🔙') 
 

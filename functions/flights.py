@@ -133,3 +133,19 @@ def delayDotProduct(start_month, end_month, origin, dest):
     visib_fig.update_layout(title = f'Visibility of flights')
     
     return wind_fig, visib_fig, dest_direction, num_delay, num_non_delay
+
+def get_all_destinations(origin):
+    query = f"SELECT DISTINCT dest FROM flights WHERE origin = ?"
+    cursor.execute(query, (origin,))
+    rows = cursor.fetchall()
+
+    destinations = [row[0] for row in rows]
+    return destinations
+
+def get_flight_data():
+    query = "SELECT * FROM flights"
+    cursor.execute(query)
+    rows = cursor.fetchall()
+
+    flights_df = pd.DataFrame(rows, columns=[x[0] for x in cursor.description])
+    return flights_df
