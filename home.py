@@ -13,7 +13,7 @@ st.sidebar.page_link('pages/part51.py', label='Delay Analysis', icon='⁉️')
 
 st.title('General Information of JFK airport')
 
-st.header('Top Five flights')
+st.header('Top 5 most common flights')
     
 c_1 = st.container(border=True)  
         
@@ -21,7 +21,7 @@ with c_1:
     result = af.top_five_flights('JFK')
     fig = af.printTopFiveFlights(list(result['origin']), list(result['dest']))
     
-    fig.update_layout(title = f'Top five flights of JFK')
+    fig.update_layout(title = f'Top 5 most travelled flights of JFK')
     fig.update_layout(geo_scope='usa')
     fig.update_layout(dragmode=False)
     fig.update_coloraxes(showscale=False)
@@ -30,7 +30,7 @@ with c_1:
     result = result.drop(columns=['origin'])
     st.table(result.set_index(result.columns[0]))
         
-st.header('Top 5 plane models')
+st.header('Top 5 most used plane models')
     
 c_3 = st.container(border=True)
     
@@ -52,7 +52,7 @@ with c_3:
    
     st.table(result.set_index(result.columns[0]))
     
-st.header('General Information of weather of JFK')
+st.header('General Information about weather of JFK')
 
 c_2 = st.container()
         
