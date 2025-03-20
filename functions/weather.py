@@ -54,3 +54,14 @@ def hourlyAverage(month_list):
     fig.update_layout(plot_bgcolor='white')
     
     return fig, seasonal_result_df
+
+def getTimeHour_df(origin, time_hour_list):
+    
+    query = f'SELECT * FROM weather WHERE time_hour IN ({','.join(['?']*len(time_hour_list))})'
+    cursor.execute(query, time_hour_list)
+    rows = cursor.fetchall()
+    timeHour_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    
+    timeHour_df = timeHour_df[timeHour_df['origin'] == origin]
+    
+    return timeHour_df

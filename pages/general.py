@@ -10,10 +10,9 @@ from datetime import datetime
 
 st.sidebar.title('Functions')
 
-options_set = ('General Information of Airports',
-               'General Information of Airlines',
-               'General Information of Flights',
-            #    'General Information of Weather',
+options_set = ('General Information of **Airports**',
+               'General Information of **Airlines**',
+               'General Information of **Flights**',
                'Flight statistics on specific day',
                'Amount of delay for flights')
 month_list = list(calendar.month_name)[1:]
@@ -35,7 +34,7 @@ if add_selectbox == 'Flight statistics on specific day':
     c_1 = st.container()
         
     with c_1:
-        date = st.date_input('Select a date', value=None)
+        date = st.date_input('Select a date', value=None, min_value='2023-01-01', max_value='2023-12-31')
         airport = st.selectbox('Select a airport',['EWR', 'LGA', 'JFK'])
         button_clicked = st.button('Select')
         
@@ -57,14 +56,16 @@ if add_selectbox == 'Flight statistics on specific day':
             
             st.plotly_chart(fig, use_container_width=True)
         
-elif add_selectbox == 'Among of delay flights':
-    st.header('Among of delay flights')
+elif add_selectbox == 'Amount of delay for flights':
+    st.header('Amount of delay for flights')
+    
+    origin = st.selectbox('Select Departure Airport:',['EWR', 'LGA', 'JFK'])
+    dest_list = sorted(pt3.unique_arrive_airports_input(origin))
+    dest = st.selectbox('Select Arrival Airport:',dest_list)
     
     input_start_month = st.selectbox('Select the month of start:',month_list)
     input_end_month = st.selectbox('Select the end of month',month_list[month_list.index(input_start_month):])
     
-    dest_list = sorted(pt3.unique_arrive_airports())
-    dest = st.selectbox('Select a destination airport',dest_list)
     button_clicked = st.button('Submit')
     
     c_1 = st.container(border=True)
@@ -74,10 +75,16 @@ elif add_selectbox == 'Among of delay flights':
             
             start_month = datetime.strptime(input_start_month, '%B').month
             end_month = datetime.strptime(input_end_month, '%B').month
-            amount = pt3.amongOfDelayFlights(start_month, end_month, dest)
+            # amount = pt3.amongOfDelayFlights(start_month, end_month, dest)
             
-            st.write('For destination',dest,'during month',input_start_month,'to',input_end_month,', the amount of delay flights is',amount,'.')
-        
+            fig, dest_direction, result = flt.delayDotProduct(start_month, end_month, origin, dest)
+            
+            st.write('For destination',dest,'during month',input_start_month,'to',input_end_month,', the amount of delay flights is',len(result),'.')
+            st.write('The angle between is',dest_direction)
+            
+            st.plotly_chart(fig, use_container_width=True)
+            # st.table(result.set_index(result.columns[0]))
+  
 elif add_selectbox == 'General Information of **Airports**':
     st.header('General Information of airports')
 
@@ -222,7 +229,6 @@ elif add_selectbox == 'General Information of **Flights**':
         st.plotly_chart(fig, use_container_width=True)
         
         result = af.available_carrier(origin, dest)
-        # st.table(result.set_index(result.columns[0]))
         
         carrier = st.radio('Select an airline:', set(result['carrier']))
     

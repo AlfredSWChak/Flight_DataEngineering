@@ -131,5 +131,44 @@ def local_arrival_time():
     
     return
 
-
+# def insertDateTimeColumn_weather():
     
+#     query = f'SELECT year, month, day, hour FROM weather'
+#     cursor.execute(query)
+#     rows = cursor.fetchall()
+#     weather_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+        
+#     weather_df = weather_df.dropna(how='all')
+#     # print(weather_df)
+    
+#     datetime_list = []
+    
+#     for i in range(len(weather_df)):
+#         row = weather_df.iloc[i]
+#         year = int(row['year'])
+#         month = int(row['month'])
+#         day = int(row['day'])
+#         hour = int(row['hour'])
+        
+#         this_datetime = datetime(year, month, day, hour)
+        
+#         datetime_list.append(this_datetime)
+    
+#     # query = f'ALTER TABLE weather ADD dateTimeObj'
+#     # cursor.execute(query)
+    
+#     for item in datetime_list:
+#         query = f'INSERT INTO weather(dateTime) VALUES (?)'
+#         cursor.execute(query, (item,))
+#     connection.commit()
+    
+#     return
+
+# insertDateTimeColumn_weather()
+
+def updateSpeed():
+    
+    
+    
+    
+    return

@@ -393,7 +393,9 @@ def planes_speed():
 
     connection.commit()
     
-    export("planes")
+    # export("planes")
+    
+# planes_speed()
     
 def compute_wind_direction_from_NYC():
     
