@@ -9,12 +9,13 @@ This project visualizes airport data and flight information using `plotly.expres
 - Distance calculations and visualizations.
 - Time zone analysis of airports.
 
-This project is part of a larger effort to monitor and analyze flight data, leveraging `pandas`, `numpy`, `plotly`, `seaborn`, and `matplotlib` for data processing and visualization.
+This project is part of a larger effort to monitor and analyze flight data, leveraging `pandas`, `numpy`, `plotly`, `seaborn`, `matplotlib` and `streamlit` for data processing and visualization.
 
 ## Project Structure
 ```
 📂 flight-monitoring
-│── 📜 README.md                 # Documentation file  
+│── 📜 README.md                 # Documentation file
+│── 📜 home.py                   # Streamlit application entry point
 │── 📜 part1.py                  # Flight visualizations (Plotly)  
 │── 📜 part3.py                  # Database queries (SQLite)
 │── 📜 part4.py                  # Streamlit application
@@ -22,39 +23,69 @@ This project is part of a larger effort to monitor and analyze flight data, leve
 │── 📜 flights_database.db       # SQLite database  
 │── 📜 airports_original.csv     # Airport dataset
 ── 📂 functions                  # Modular function scripts  
-│    ├── airlines.py             # Airline-related functions  
-│    ├── flights.py              # Flight statistics functions   
-│── 📜 (More files coming...)  
+│ ├── 📜 airlines.py             # Airline fleet analysis
+│ ├── 📜 flights.py              # Flight statistics & calculations
+│ ├── 📜 weather.py              # Weather impact analysis
+│ └── 📜 duncan_function.py      # Custom route analytics
+├── 📂 database_csv              # Exported database tables
+├── 📂 .streamlit                # Streamlit config (ignored)
+└── 📜 part1.py                  # Flight path visualizations
+📜 part3.py                      # Advanced SQL queries
+📜 part4.py                      # Streamlit UI enhancements
+📜 extra.py                      # Utility functions 
+
 ```
-## Features
-### 1. Interactive Web Application(Streamlit)
-- **General Airport Information**: Displays airport locations, altitude, and time zones.
-- **General Airline Information**: Analyze airline operations, aircraft models, and fleet statistics.
-- **General Flight Information**: Retrieves flight routes, delays, and usage statistics.
-- **Flight Statistics on Specific Days**: Analyzes daily flight trends at major NYC sirports.
-- **Delayed Flight Analysis**: Compute the number of delayed flights within a selected date range.
-### 2. Airport Maps & Visualizations
-- **Global Airport Map**: Plots all airports from the dataset.
-- **US airport Map**: Fliters and displays only US airports.
-- **Altitude Color Coding**: Airports are color-coded based on altitude.
+## Key Features
 
-### 3. Flight Path Visualization
-- **Single Airport Flight Path**: Show a flight path from JFK to other specified airports on a single day.
-- **Multiple Flight Paths**:
+###1. 🛫 **Interactive Dashboard (Streamlit)**
+Multi-page Navigation:
+Home: System overview
+General: Airport/airline metadata
+Delay: Historical delay patterns
+Dynamic Filters: Date ranges, airlines, airports
+Flight Paths: Plotly-powered trajectory visualization
 
-### 4. Distance Calculations
-- **Euclidean Distance**: Computes the Euclidean distance from each airport to JFK.
-- **Geodesic Distance**: Calculates a more accurate great-circle distance.
-- **Distance Distribution**: Visualizes the distribution of distances.
+###2. ✈️ **Data Analytics**
+Distance Metrics:
+Euclidean vs Geodesic distance comparisons
+JFK-centric distance distributions
+Delay Predictors:
+Weather correlation analysis
+Airline performance benchmarking
+Fleet Analytics:
+Top 5 aircraft manufacturers
+Route-specific equipment usage
 
-### 5. Databse Queries & Flight Analysis
-- ** Retrieve flight data: Query flights based on various parameters.
-- ** Analyze airline operations: Investigate departure trends delays.
-- ** Aircraft model insights: Assess aircraft usage for different rountes.
-- ** Flight trajectory analysis: Determine how many times each plane type was used for a specific route.
-- ** Airline delay analysis: Compute the average departure delay per airline and visualize in a bar plot.
-- ** Delay flight analysis: Retrieve the numberof delayed flights for a given range of months and destination.
-- ** Top airplane manufacturers: Identidy the top 5 airplane manufacturers for flights departing to a specified destination.
+###3. ✈️ **Data Analytics**
+Distance Metrics:
+Euclidean vs Geodesic distance comparisons
+JFK-centric distance distributions
+Delay Predictors:
+Weather correlation analysis
+Airline performance benchmarking
+Fleet Analytics:
+Top 5 aircraft manufacturers
+Route-specific equipment usage
+
+###4. 📊 **Visualization Suite**
+Global Airport Map: scatter_geo() with altitude color-coding
+US Airport Filter: Geo-fenced CONUS visualization
+Multi-path Generator: Compare JFK→LAX, JFK→ORD, and JFK→CDG trajectories
+Delay Heatmaps: Seaborn-based temporal patterns
+
+###5. 🗺️ **Distance Calculations**
+Euclidean Distance: Computes distance from each airport to JFK.
+Geodesic Distance: More accurate great-circle distance calculation.
+Distance Distribution: Visualizes the distribution of distances.
+
+###6. **Database Queries & Flight Analysis**
+Flight Data Retrieval: Query flights based on parameters like airline, airport, and date.
+Airline Operations: Investigate departure trends and delays.
+Aircraft Model Insights: Assess aircraft usage per route.
+Flight Trajectory Analysis: Analyze frequency of aircraft types used on specific routes.
+Airline Delay Analysis: Compute average departure delay per airline (bar plot).
+Delay Flight Analysis: Retrieve delayed flight counts by month and destination.
+Top Aircraft Manufacturers: Identify the top 5 manufacturers for flights to a specified destination.
 
 ## Usage
 ### Dependencies
