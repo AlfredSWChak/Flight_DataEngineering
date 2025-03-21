@@ -98,13 +98,13 @@ elif add_selectbox == 'General Information of **Airports**':
         fig.update_layout(dragmode=False)
         st.plotly_chart(fig, use_container_width=True)
         
-    st.subheader('Top five common flights of selected airport(s)')
+    st.subheader('Top five busiest routes of selected airport(s)')
     
     c_2 = st.container()
         
     with c_2:
         airport = st.selectbox('Select a departure airport',['EWR', 'LGA', 'JFK', 'All airports'])
-        button_clicked = st.button('Submit')   
+        button_clicked = st.button('Select')   
        
     c_3 = st.container(border=True)
         
@@ -114,11 +114,13 @@ elif add_selectbox == 'General Information of **Airports**':
             fig = af.printTopFiveFlights(list(result['origin']), list(result['dest']))
             
             fig.update_layout(geo_scope='usa')
-            fig.update_layout(title = f'Top five flights of {airport}')
+            fig.update_layout(title = f'Top five busiest routes of {airport}')
             fig.update_coloraxes(showscale=False)
             st.plotly_chart(fig, use_container_width=True)
             result = result.drop(columns=['origin'])
-            st.table(result.set_index(result.columns[0]))
+            # st.table(result.set_index(result.columns[0]))
+            result.columns = ['Destination Airport', 'Distance of flight (km)', 'Number of flights']
+            st.dataframe(result.set_index(result.columns[0]), use_container_width=True)
             
 elif add_selectbox == 'General Information of **Airlines**':
     st.header('General Information on airlines')
@@ -152,9 +154,11 @@ elif add_selectbox == 'General Information of **Airlines**':
         with cols[0]:
             unique_models_df_copy = unique_models_df.copy()
             unique_models_df_copy.columns = ['Manufacturer', 'Model', 'Seats', 'Number of planes']
-            st.table(unique_models_df_copy.set_index(unique_models_df_copy.columns[0]))
+            # st.table(unique_models_df_copy.set_index(unique_models_df_copy.columns[0]))
+            st.dataframe(unique_models_df_copy.set_index(unique_models_df_copy.columns[0]), use_container_width=True)
         with cols[1]:
-            st.bar_chart(data=unique_models_df, x='model', y='numModels', horizontal=True, use_container_width=True)
+            plot_df = unique_models_df.rename(columns={'model': 'Model', 'numModels': 'Number of models'})
+            st.bar_chart(data= plot_df, x='Model', y='Number of models', horizontal=True, use_container_width=True)
               
         # manufacturer = st.selectbox('Select a model:', sorted(set(manufacturers_list)))
         
@@ -218,10 +222,10 @@ elif add_selectbox == 'General Information of **Flights**':
         result, bar_result = af.check_plane_model(list(new_result['tailnum']))
         
         result_copy = result.copy()
-        result_copy.columns = ['Type', 'Manufacturer', 'Model', 'Number of engines', 'Seats', 'Speed', 'Engine']
-        
+        result_copy.columns = ['Type', 'Manufacturer', 'Model', 'Number of engines', 'Seats', 'Speed(m/s)', 'Engine']
         st.write('There are',len(result),'unique models:')
-        st.table(result_copy.set_index(result_copy.columns[0]))
+        # st.table(result_copy.set_index(result_copy.columns[0]))
+        st.dataframe(result_copy.set_index(result_copy.columns[0]), use_container_width=True)
 
 # elif add_selectbox == 'Flight statistics for delay':
 #     st.header('Flight Statistics for Delay')
