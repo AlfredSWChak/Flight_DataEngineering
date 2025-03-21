@@ -4,6 +4,8 @@ import seaborn as sns
 import plotly.express as px
 import plotly.graph_objects as go
 import math
+import numpy as np
+from numpy import pi, sin, cos
 
 connection = sqlite3.connect('flights_database.db', check_same_thread=False)
 cursor = connection.cursor()
@@ -88,7 +90,7 @@ def printTopFiveFlights(origin_list, dest_list):
     rows = cursor.fetchall()
     airports_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
     
-    fig = px.scatter_geo(airports_df, hover_name="name", lat="lat", lon="lon", color="alt", text="faa")  
+    fig = px.scatter_geo(airports_df, hover_name="name", lat="lat", lon="lon", text="faa")  
     
     for origin, dest in zip(origin_list, dest_list):
         origin_lat = airports_df[airports_df['faa']==origin]['lat'].iloc[0]
@@ -97,8 +99,6 @@ def printTopFiveFlights(origin_list, dest_list):
         dest_lon = airports_df[airports_df['faa']==dest]['lon'].iloc[0]
    
         fig.add_trace(go.Scattergeo(locationmode = 'USA-states',lon = [origin_lon, dest_lon], lat = [origin_lat, dest_lat], mode = "lines", line = dict(width = 1,color = 'red'), opacity = 1))
-    
-    # fig.update_traces(showlegend=False)
     
     return fig
 
@@ -142,6 +142,44 @@ def check_plane_model(tailnum_list):
     
     return result, count_planes_df
 
+def point_sphere(lon, lat):
+    #associate the cartesian coords (x, y, z) to a point on the  globe of given lon and lat
+    #lon longitude
+    #lat latitude
+    lon = lon*pi/180
+    lat = lat*pi/180
+    x = cos(lon) * cos(lat) 
+    y = sin(lon) * cos(lat) 
+    z = sin(lat) 
+    return np.array([x, y, z])
+
+def slerp(A=[100, 45], B=[-50, -25], dir=-1, n=100):
+    #Spherical "linear" interpolation
+    """
+    A=[lonA, latA] lon, lat given in degrees; lon in  (-180, 180], lat in (-90, 90]
+    B=[lonB, latB]
+    returns n points on the great circle of the globe that passes through the  points A, B
+    #represented by lon and lat
+    #if dir=1 it returns the shortest path; for dir=-1 the complement of the shortest path
+    """
+    As = point_sphere(A[0], A[1])
+    Bs = point_sphere(B[0], B[1])
+    alpha = np.arccos(np.dot(As,Bs)) if dir==1 else  2*pi-np.arccos(np.dot(As,Bs))
+    
+    if abs(alpha) < 1e-6 or abs(alpha-2*pi)<1e-6:
+        return A
+    else:
+        t = np.linspace(0, 1, n)
+        P = sin((1 - t)*alpha) 
+        Q = sin(t*alpha)
+        #pts records the cartesian coordinates of the points on the chosen path
+        pts =  np.array([a*As + b*Bs for (a, b) in zip(P,Q)])/sin(alpha)
+        #convert cartesian coords to lons and lats to be passed to go.Scattermapbox
+        lons = 180*np.arctan2(pts[:, 1], pts[:, 0])/pi
+        lats = 180*np.arctan(pts[:, 2]/np.sqrt(pts[:, 0]**2+pts[:,1]**2))/pi
+        
+        return lons, lats
+
 def drawOneFlight(origin, dest):
     
     keys = [origin, dest]
@@ -151,16 +189,24 @@ def drawOneFlight(origin, dest):
     rows = cursor.fetchall()
     airports_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
     
+    # origin_lat = airports_df[airports_df['faa'] == origin]['lat'].iloc[0]
+    # origin_lon = airports_df[airports_df['faa'] == origin]['lon'].iloc[0]
+    # dest_lat = airports_df[airports_df['faa'] == dest]['lat'].iloc[0]
+    # dest_lon = airports_df[airports_df['faa'] == dest]['lon'].iloc[0]
+    
     fig = px.scatter_geo(airports_df, hover_name="name", lat="lat", lon="lon", color="alt", text="faa")  
+    
+    # lons, lats = slerp(A=[origin_lon, origin_lat], B=[dest_lon, dest_lat], dir=1)
+    # fig.add_trace(go.Scattergeo(locationmode = 'USA-states', lon=lons, lat=lats, mode="lines", line_color="red"))
     
     fig.update_layout(title = 'Trace of the flight',geo_scope="usa")
     fig.add_trace(go.Scattergeo(locationmode = 'USA-states',lon = airports_df['lon'], lat = airports_df['lat'], mode = "lines", line = dict(width = 1,color = 'red'), opacity = 1))
     
-    for tzone in airports_df['tzone']:
+    for tzone in airports_df[airports_df['faa'] == dest]['tzone']:
         if 'America' in tzone:
             return fig
     
-    fig.update_layout(title = 'Trace of the flight',geo_scope="usa")
+    fig.update_layout(title = 'Trace of the flight',geo_scope="world")
     
     return fig
 

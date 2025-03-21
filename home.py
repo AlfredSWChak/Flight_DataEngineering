@@ -9,7 +9,7 @@ st.set_page_config(page_title = 'Project Flights',
 
 st.sidebar.page_link('home.py', label='Home Page', icon='🏠')
 st.sidebar.page_link('pages/general.py', label='General Information', icon='ℹ️')
-# st.sidebar.page_link('pages/part51.py', label='Delay Analysis', icon='⁉️')
+st.sidebar.page_link('pages/delay.py', label='Delay Analysis', icon='⁉️')
 
 st.title('General Information of JFK airport')
 
@@ -22,13 +22,17 @@ with c_1:
     fig = af.printTopFiveFlights(list(result['origin']), list(result['dest']))
     
     fig.update_layout(title = f'Top 5 most travelled flights of JFK')
-    fig.update_layout(geo_scope='usa')
-    fig.update_layout(dragmode=False)
+    fig.update_layout(geo_scope='usa', showlegend=False, dragmode=False)
+    fig.update_layout(hoverlabel_font_color='black', font_color = 'blue')
+    fig.update_traces(marker=dict(size=5, color='DarkSlateGrey'), textposition='top center')
+    # fig.update_annotations(bgcolor='black')
     fig.update_coloraxes(showscale=False)
     st.plotly_chart(fig, use_container_width=True)
     
-    result = result.drop(columns=['origin'])
-    st.table(result.set_index(result.columns[0]))
+    result_copy = result.copy()
+    result_copy = result_copy.drop(columns=['origin'])
+    result_copy.columns = ['Destination Airport', 'Distance of flight (km)', 'Number of flights']
+    st.table(result_copy.set_index(result_copy.columns[0]))
         
 st.header('Top 5 most used plane models')
     
@@ -49,8 +53,11 @@ with c_3:
         st.write('Speed:',model_row['speed'].iloc[0])
         st.write('Number of seats:',model_row['seats'].iloc[0])
         st.write('Number of planes:',model_row['numPlanes'].iloc[0])
-   
-    st.table(result.set_index(result.columns[0]))
+        
+    result_copy = result.copy()
+    # result_copy.columns = result_copy.columns.str.upper()
+    result_copy.columns = ['Type', 'Manufacturer', 'Model', 'Number of engines', 'Seats', 'Speed', 'Engine', 'Number of planes']
+    st.table(result_copy.set_index(result_copy.columns[0]))
     
 st.header('General Information about weather of JFK')
 
