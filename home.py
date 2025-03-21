@@ -11,7 +11,7 @@ st.sidebar.page_link('pages/delay.py', label='Delay Analysis', icon='⁉️')
 
 st.title('General Information of JFK airport')
 
-st.header('Top 5 most common flights')
+st.header('Top 5 busiest routes')
     
 c_1 = st.container(border=True)  
         
@@ -19,7 +19,7 @@ with c_1:
     result = ex.top_five_flights('JFK')
     fig = ex.printTopFiveFlights(list(result['origin']), list(result['dest']))
     
-    fig.update_layout(title = f'Top 5 most travelled flights of JFK')
+    fig.update_layout(title = f'Top 5 busiest routes departing from JFK')
     fig.update_layout(geo_scope='usa', showlegend=False, dragmode=False)
     fig.update_layout(hoverlabel_font_color='black', font_color = 'blue')
     fig.update_traces(marker=dict(size=5, color='DarkSlateGrey'), textposition='top center')
@@ -30,7 +30,8 @@ with c_1:
     result_copy = result.copy()
     result_copy = result_copy.drop(columns=['origin'])
     result_copy.columns = ['Destination Airport', 'Distance of flight (km)', 'Number of flights']
-    st.table(result_copy.set_index(result_copy.columns[0]))
+    # st.table(result_copy.set_index(result_copy.columns[0]))
+    st.dataframe(result_copy.set_index(result_copy.columns[0]), use_container_width=True)
         
 st.header('Top 5 most used plane models')
     
@@ -54,5 +55,7 @@ with c_3:
         
     result_copy = result.copy()
     # result_copy.columns = result_copy.columns.str.upper()
+
     result_copy.columns = ['Type', 'Manufacturer', 'Model', 'Number of engines', 'Seats', 'Speed', 'Engine', 'Number of planes']
-    st.table(result_copy.set_index(result_copy.columns[0]))
+    # st.table(result_copy.set_index(result_copy.columns[0]))
+    st.dataframe(result_copy.set_index(result_copy.columns[0]), use_container_width=True)

@@ -125,9 +125,9 @@ if add_selectbox == 'Flight statistics for delay':
     if not filtered_df.empty:
         st.subheader(f"Flight Delay Statistics from {origin} to {dest}")
         st.write(f"Total Flights: {len(filtered_df)}")
-        st.write(f"Average Weekly Flights: {len(filtered_df) / 52:.2f}")
-        st.write(f"Average Flight Time: {filtered_df['air_time'].mean():.2f} minutes")
-        st.write(f"Average Delay: {filtered_df['dep_delay'].mean():.2f} minutes")
+        st.write(f"Average Weekly Flights: {len(filtered_df) / 52:.0f}")
+        st.write(f"Average Flight Time: {filtered_df['air_time'].mean():.0f} minutes")
+        st.write(f"Average Delay: {filtered_df['dep_delay'].mean():.0f} minutes")
 
         st.subheader(f"Flight per Month from {origin}")
         flights_per_month = filtered_df['month'].value_counts().sort_index()
@@ -168,10 +168,10 @@ elif add_selectbox == 'Delay analysis - Possible causes: Weather 🌦️':
     
     # dest = st.selectbox('Select Arrival Airport:',dest_list)
     
-    input_start_month = st.selectbox('Select the month of start:',month_list)
-    input_end_month = st.selectbox('Select the end of month',month_list[month_list.index(input_start_month):])
+    input_start_month = st.selectbox('Select the month of departure:',month_list)
+    input_end_month = st.selectbox('Select the month of arrival:',month_list[month_list.index(input_start_month):])
     
-    button_clicked = st.button('Submit')
+    button_clicked = st.button('Select')
     
     c_1 = st.container(border=True)
     
