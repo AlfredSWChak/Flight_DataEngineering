@@ -13,9 +13,8 @@ st.sidebar.title('Functions')
 options_set = ('General Information of **Airports**',
                'General Information of **Airlines**',
                'General Information of **Flights**',
-               'Flight statistics on a specific day',
-               'Flight statistics for delay',
-               'Delay analysis - Possible causes: Weather 🌦️')
+               'Flight statistics on a specific day')
+
 month_list = list(calendar.month_name)[1:]
 
 add_selectbox = st.sidebar.radio('Options', 
@@ -54,41 +53,12 @@ if add_selectbox == 'Flight statistics on a specific day':
             st.text('On '+str(day)+'/'+str(month)+' at '+airport+', '+destMost+' is visited most often with '+str(numMost)+' flights.')
             
             fig = pt3.printFlightsOnDateAtAirport(month, day, airport)
+            fig.update_layout(showlegend=False, dragmode=False)
+            fig.update_coloraxes(showscale=False)
+            fig.update_layout(hoverlabel_font_color='black', font_color = 'blue')
+            fig.update_traces(marker=dict(size=5, color='DarkSlateGrey'), textposition='top center')
             
             st.plotly_chart(fig, use_container_width=True)
-        
-elif add_selectbox == 'Delay analysis - Possible causes: Weather 🌦️':
-    st.header('Delay analysis - Possible causes: Weather 🌦️')
-    
-    origin = st.selectbox('Select Departure Airport:',['EWR', 'LGA', 'JFK'])
-    dest_list = sorted(pt3.unique_arrive_airports_input(origin))
-    dest = st.selectbox('Select Arrival Airport:',dest_list)
-    
-    input_start_month = st.selectbox('Select the month of start:',month_list)
-    input_end_month = st.selectbox('Select the end of month',month_list[month_list.index(input_start_month):])
-    
-    button_clicked = st.button('Submit')
-    
-    c_1 = st.container(border=True)
-    
-    with c_1:
-        if button_clicked:
-            
-            start_month = datetime.strptime(input_start_month, '%B').month
-            end_month = datetime.strptime(input_end_month, '%B').month
-            
-            wind_fig, visib_fig, dest_direction, num_delay, num_non_delay = flt.delayDotProduct(start_month, end_month, origin, dest)
-            
-            st.write('For destination',dest,'during month',input_start_month,'to',input_end_month,', the amount of flights is',num_delay+num_non_delay,'.')
-            st.write('There are',num_delay,'delay flights, and',num_non_delay,'non-delay flights.')
-            st.write(f'The angle between **{origin}** and **{dest}** is', round(dest_direction,2), 'degrees.')
-            
-            cols = st.columns(2, gap = 'small')
-        
-            with cols[0]:
-                st.plotly_chart(wind_fig, use_container_width=True)
-            with cols[1]:
-                st.plotly_chart(visib_fig, use_container_width=True)
   
 elif add_selectbox == 'General Information of **Airports**':
     st.header('General Information of airports')
@@ -231,58 +201,64 @@ elif add_selectbox == 'General Information of **Flights**':
     
     with c_2:
         fig = af.drawOneFlight(origin, dest)
+        fig.update_layout(showlegend=False, dragmode=False)
+        fig.update_coloraxes(showscale=False)
+        fig.update_layout(hoverlabel_font_color='black', font_color = 'blue')
+        fig.update_traces(marker=dict(size=5, color='DarkSlateGrey'), textposition='top center')
+        
         st.plotly_chart(fig, use_container_width=True)
         
         result = af.available_carrier(origin, dest)
         
-        carrier = st.radio('Select an airline:', set(result['carrier']))
+        carrier = st.radio('Select an airline:', set(result['carrier']), horizontal=True)
     
         numPlanes, new_result = af.available_plane_model(origin, dest, carrier)
         st.write('There are',numPlanes, 'planes served by', carrier+'.')
         
         result, bar_result = af.check_plane_model(list(new_result['tailnum']))
         
+        result_copy = result.copy()
+        result_copy.columns = ['Type', 'Manufacturer', 'Model', 'Number of engines', 'Seats', 'Speed', 'Engine']
+        
         st.write('There are',len(result),'unique models:')
-        st.table(result.set_index(result.columns[0]))
+        st.table(result_copy.set_index(result_copy.columns[0]))
 
-elif add_selectbox == 'Flight statistics for delay':
-    st.header('Flight Statistics for Delay')
+# elif add_selectbox == 'Flight statistics for delay':
+#     st.header('Flight Statistics for Delay')
 
-    origin = st.selectbox('Select Departture Airport:', ['EWR', 'LGA', 'JFK'])
-    destination_options = flt.get_all_destinations(origin)
-    dest = st.selectbox('Select Destination Airport:', destination_options)
+#     origin = st.selectbox('Select Departture Airport:', ['EWR', 'LGA', 'JFK'])
+#     destination_options = flt.get_all_destinations(origin)
+#     dest = st.selectbox('Select Destination Airport:', destination_options)
 
-    flights_df = flt.get_flight_data()
-    filtered_df = flights_df[(flights_df['origin'] == origin) & (flights_df['dest'] == dest)]
+#     flights_df = flt.get_flight_data()
+#     filtered_df = flights_df[(flights_df['origin'] == origin) & (flights_df['dest'] == dest)]
 
-    if not filtered_df.empty:
-        st.subheader(f"Flight Delay Statistics from {origin} to {dest}")
-        st.write(f"Total Flights: {len(filtered_df)}")
-        st.write(f"Average Weekly Flights: {len(filtered_df) / 52:.2f}")
-        st.write(f"Average Flight Time: {filtered_df['air_time'].mean():.2f} minutes")
-        st.write(f"Average Delay: {filtered_df['dep_delay'].mean():.2f} minutes")
+#     if not filtered_df.empty:
+#         st.subheader(f"Flight Delay Statistics from {origin} to {dest}")
+#         st.write(f"Total Flights: {len(filtered_df)}")
+#         st.write(f"Average Weekly Flights: {len(filtered_df) / 52:.2f}")
+#         st.write(f"Average Flight Time: {filtered_df['air_time'].mean():.2f} minutes")
+#         st.write(f"Average Delay: {filtered_df['dep_delay'].mean():.2f} minutes")
 
-        st.subheader(f"Flight per Month from {origin}")
-        flights_per_month = filtered_df['month'].value_counts().sort_index()
-        st.bar_chart(flights_per_month)
+#         st.subheader(f"Flight per Month from {origin}")
+#         flights_per_month = filtered_df['month'].value_counts().sort_index()
+#         st.bar_chart(flights_per_month)
 
-        st.subheader("Total Flights per Month for all airports")
-        flights_per_month = flights_df['month'].value_counts().sort_index()
-        st.bar_chart(flights_per_month)
+#         st.subheader("Total Flights per Month for all airports")
+#         flights_per_month = flights_df['month'].value_counts().sort_index()
+#         st.bar_chart(flights_per_month)
 
-        st.subheader(f"Total Delay per Month from {origin}")
-        delay_per_month = filtered_df.groupby('month')['dep_delay'].sum().sort_index()
-        st.bar_chart(delay_per_month)
-
-
-        st.subheader("Total Delay per Month for all airports")
-        delay_per_month = flights_df.groupby('month')['dep_delay'].sum().sort_index()
-        st.bar_chart(delay_per_month)
-
-    else:
-        st.write("No flight data found for the selected route.")
+#         st.subheader(f"Total Delay per Month from {origin}")
+#         delay_per_month = filtered_df.groupby('month')['dep_delay'].sum().sort_index()
+#         st.bar_chart(delay_per_month)
 
 
+#         st.subheader("Total Delay per Month for all airports")
+#         delay_per_month = flights_df.groupby('month')['dep_delay'].sum().sort_index()
+#         st.bar_chart(delay_per_month)
+
+#     else:
+#         st.write("No flight data found for the selected route.")
 
 bkhm = st.sidebar.button("Back to home page", icon='🔙') 
 
