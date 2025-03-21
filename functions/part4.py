@@ -1,6 +1,6 @@
 import sqlite3
 from datetime import datetime
-import part3 as pt3
+import functions.part3 as pt3
 import pandas as pd
 
 connection = sqlite3.connect('flights_database.db', check_same_thread=False)
@@ -128,47 +128,5 @@ def local_arrival_time():
         arrival_list.append(arrival_time) 
     
     print(new_df)
-    
-    return
-
-# def insertDateTimeColumn_weather():
-    
-#     query = f'SELECT year, month, day, hour FROM weather'
-#     cursor.execute(query)
-#     rows = cursor.fetchall()
-#     weather_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
-        
-#     weather_df = weather_df.dropna(how='all')
-#     # print(weather_df)
-    
-#     datetime_list = []
-    
-#     for i in range(len(weather_df)):
-#         row = weather_df.iloc[i]
-#         year = int(row['year'])
-#         month = int(row['month'])
-#         day = int(row['day'])
-#         hour = int(row['hour'])
-        
-#         this_datetime = datetime(year, month, day, hour)
-        
-#         datetime_list.append(this_datetime)
-    
-#     # query = f'ALTER TABLE weather ADD dateTimeObj'
-#     # cursor.execute(query)
-    
-#     for item in datetime_list:
-#         query = f'INSERT INTO weather(dateTime) VALUES (?)'
-#         cursor.execute(query, (item,))
-#     connection.commit()
-    
-#     return
-
-# insertDateTimeColumn_weather()
-
-def updateSpeed():
-    
-    
-    
     
     return

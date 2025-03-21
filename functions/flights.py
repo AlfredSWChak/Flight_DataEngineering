@@ -9,7 +9,7 @@ import seaborn as sns
 import calendar
 from datetime import datetime
 import functions.weather as wthr
-import alfred_function as af
+import functions.extra as ex
 
 connection = sqlite3.connect('flights_database.db', check_same_thread=False)
 cursor = connection.cursor()
@@ -79,7 +79,7 @@ def delayDotProduct(start_month, end_month, origin, dest):
     rows = cursor.fetchall()
     delay_flights_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
     
-    dest_direction = af.getAngleBetween(origin, dest)
+    dest_direction = ex.getAngleBetween(origin, dest)
     if (dest_direction < 0):
         dest_direction = 360 + dest_direction
     
@@ -91,7 +91,7 @@ def delayDotProduct(start_month, end_month, origin, dest):
     
     temp = delay_flights_df.copy().drop_duplicates(subset=['tailnum'])
     tailnum_list = delay_flights_df['tailnum'].tolist()   
-    planes_df = af.getTailnumPlanes(tailnum_list)
+    planes_df = ex.getTailnumPlanes(tailnum_list)
     
     dot_product_list = []
     angle_list = []

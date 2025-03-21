@@ -326,3 +326,12 @@ def getAngleBetween(origin, dest):
     angle = math.degrees(math.atan2(y ,x))        
     
     return angle
+
+def getAirportFullName(airports_list):
+    
+    query = f'SELECT * FROM airports WHERE faa IN ({','.join(['?']*len(airports_list))})'
+    cursor.execute(query, airports_list)
+    rows = cursor.fetchall()
+    airports_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    
+    return airports_df
