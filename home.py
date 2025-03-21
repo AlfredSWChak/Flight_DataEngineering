@@ -1,14 +1,12 @@
 import streamlit as st
-import alfred_function as af
-import part1 as pt1
-import functions.weather as wthr
+import functions.extra as ex
 
 st.set_page_config(page_title = 'Project Flights', 
                    layout = 'wide', 
                    initial_sidebar_state = 'expanded')
 
 st.sidebar.page_link('home.py', label='Home Page', icon='🏠')
-st.sidebar.page_link('pages/general.py', label='General Information', icon='ℹ️')
+st.sidebar.page_link('pages/general.py', label='General Information', icon='ℹ️')    
 st.sidebar.page_link('pages/delay.py', label='Delay Analysis', icon='⁉️')
 
 st.title('General Information of JFK airport')
@@ -18,8 +16,8 @@ st.header('Top 5 most common flights')
 c_1 = st.container(border=True)  
         
 with c_1:
-    result = af.top_five_flights('JFK')
-    fig = af.printTopFiveFlights(list(result['origin']), list(result['dest']))
+    result = ex.top_five_flights('JFK')
+    fig = ex.printTopFiveFlights(list(result['origin']), list(result['dest']))
     
     fig.update_layout(title = f'Top 5 most travelled flights of JFK')
     fig.update_layout(geo_scope='usa', showlegend=False, dragmode=False)
@@ -39,7 +37,7 @@ st.header('Top 5 most used plane models')
 c_3 = st.container(border=True)
     
 with c_3:
-    result = af.top_five_planes()
+    result = ex.top_five_planes()
     
     cols = st.columns(3, gap = 'small')
     with cols[0]:
@@ -58,26 +56,3 @@ with c_3:
     # result_copy.columns = result_copy.columns.str.upper()
     result_copy.columns = ['Type', 'Manufacturer', 'Model', 'Number of engines', 'Seats', 'Speed', 'Engine', 'Number of planes']
     st.table(result_copy.set_index(result_copy.columns[0]))
-    
-st.header('General Information about weather of JFK')
-
-c_2 = st.container()
-        
-with c_2:
-    cols = st.columns((4, 4), gap = 'medium')
-    
-    with cols[0]:
-        season = st.radio('Select a season:', ('Whole year', 'Spring (March, April, May)', 'Summer (June, July, August)', 'Autumn (September, October, November)', 'Winter (December, Janurary, Feburary)'), horizontal=False)
-        month_list = wthr.getMonth(season)
-        
-    with cols[1]:
-        fig, result = wthr.hourlyAverage(month_list)
-        st.write(f'***Average*** of {season}')
-        st.write('Wind Speed:',round(result['wind_speed'],3),'m/s')
-        st.write('Wind Gust:',round(result['wind_gust'],3), 'm/s')
-        st.write('Visibility:',round(result['visib'],3),'m')     
-
-c_4 = st.container(border=True)
-    
-with c_4:
-    st.plotly_chart(fig, use_container_width=True)

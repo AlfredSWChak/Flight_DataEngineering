@@ -20,16 +20,19 @@ def getMonth(season):
         result = [9,10,11]
     elif season == 'Winter (December, Janurary, Feburary)':
         result = [12,1,2]
-    elif season == 'Whole year':
-        result = list(range(1,13))
+    # elif season == 'Whole year':
+    #     result = list(range(1,13))
     
     return result
 
-def hourlyAverage(month_list):
-    query = f'SELECT hour, wind_speed, wind_gust, precip, visib FROM weather WHERE month IN ({','.join(['?']*len(month_list))})'
+def hourlyAverage(airport, month_list):
+    query = f'SELECT origin, hour, wind_speed, wind_gust, precip, visib FROM weather WHERE month IN ({','.join(['?']*len(month_list))})'
     cursor.execute(query, month_list)
     rows = cursor.fetchall()
     weather_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    
+    weather_df = weather_df[weather_df['origin'] == airport]
+    weather_df = weather_df.drop(columns = 'origin')
     
     result_df = pd.DataFrame()
     
@@ -50,7 +53,7 @@ def hourlyAverage(month_list):
                          line=dict(color='red', width=2, dash='dot'), mode='lines+markers'))
     fig.add_trace(go.Scatter(x=result_df['hour'], y=result_df['visib'], name='Visib',
                          line=dict(color='green', width=2, dash='dot'), mode='lines+markers'))
-    fig.update_layout(title='Weather information in each hour in JFK')
+    fig.update_layout(title=f'Weather information in each hour in {airport}')
     fig.update_layout(plot_bgcolor='white')
     
     return fig, seasonal_result_df

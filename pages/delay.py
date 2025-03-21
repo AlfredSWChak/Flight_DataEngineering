@@ -4,12 +4,12 @@ import streamlit as st
 import plotly.express as px
 import sqlite3
 
-import part1 as pt1
-import part3 as pt3
-import part4 as pt4
+import functions.part1 as pt1
+import functions.part3 as pt3
+import functions.part4 as pt4
 
 import altair as alt
-import alfred_function as af
+import functions.extra as ex
 import functions.airlines as alnes
 import functions.flights as flt
 import calendar
@@ -152,9 +152,21 @@ if add_selectbox == 'Flight statistics for delay':
 elif add_selectbox == 'Delay analysis - Possible causes: Weather 🌦️':
     st.header('Delay analysis - Possible causes: Weather 🌦️')
     
-    origin = st.selectbox('Select Departure Airport:',['EWR', 'LGA', 'JFK'])
+    temp_origin = ex.getAirportFullName(['EWR', 'LGA', 'JFK'])
+    joined_list = temp_origin[['faa','name']].agg('-'.join, axis=1)
+        
+    origin_selection = st.selectbox('Select Departure Airport:', sorted(joined_list))
+    origin = origin_selection[:3]
+    
+    # origin = st.selectbox('Select Departure Airport:',['EWR', 'LGA', 'JFK'])
     dest_list = sorted(pt3.unique_arrive_airports_input(origin))
-    dest = st.selectbox('Select Arrival Airport:',dest_list)
+    temp_dest = ex.getAirportFullName(dest_list)
+    joined_dest_list = temp_dest[['faa','name']].agg('-'.join, axis=1)
+        
+    dest_selection = st.selectbox('Select Arrival Airport:', sorted(joined_dest_list))
+    dest = dest_selection[:3]
+    
+    # dest = st.selectbox('Select Arrival Airport:',dest_list)
     
     input_start_month = st.selectbox('Select the month of start:',month_list)
     input_end_month = st.selectbox('Select the end of month',month_list[month_list.index(input_start_month):])

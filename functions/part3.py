@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 import math
 import seaborn as sns
-import part1 as pt1
+import functions.part1 as pt1
 
 connection = sqlite3.connect('flights_database.db', check_same_thread=False)
 cursor = connection.cursor()
