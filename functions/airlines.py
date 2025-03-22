@@ -45,7 +45,7 @@ def getAllTailnum(airline):
     count_years_df['year'] = count_years_df['year'].astype(int)
     count_years_df = count_years_df.sort_values(by=['manufacturer'], ascending=True)
     
-    return count_unique_models_df, numOfPlanes, numOfUniqueModels, count_years_df
+    return count_unique_models_df, numOfPlanes, numOfUniqueModels, count_years_df, models_df
 
 def getModelsList(models_df, manufacturer):
     
@@ -53,14 +53,21 @@ def getModelsList(models_df, manufacturer):
     
     return models_list
 
-def getModelStatistics(models_df):
+def getModelStatistics(scope, unique_models_df, models_df):
     
-    # new_models_df = models_df[models_df['model'] == model]
+    if scope == 'Manufacturer':
+        manus_df = models_df.groupby(by=['manufacturer']).size().reset_index(name='numModels')
+        fig = px.pie(manus_df, values='numModels', names='manufacturer', title='Proportions of different plane manufacturer of the whole fleet', color_discrete_sequence=px.colors.sequential.Aggrnyl)
     
-    # count_year_df = models_df.groupby(by=['year']).size().reset_index(name='numModels')
-    # count_year_df = count_year_df.sort_values(by=['year'], ascending=False)
+    elif scope == 'Model':
+        fig = px.pie(unique_models_df, values='numModels', names='model', title='Proportions of different plane models of the whole fleet', color_discrete_sequence=px.colors.sequential.Aggrnyl)
     
-    fig = px.pie(models_df, values='numModels', names='model', title='Proportions of different plane models of the whole fleet', color_discrete_sequence=px.colors.sequential.Aggrnyl)
+    elif scope == 'Year':
+        years_df = models_df.groupby(by=['year']).size().reset_index(name='numModels')
+        fig = px.pie(years_df, values='numModels', names='year', title='Proportions of different plane year of the whole fleet', color_discrete_sequence=px.colors.sequential.Aggrnyl)
+    
+    else:
+        return fig
     
     return fig
 

@@ -171,3 +171,36 @@ def get_all_destinations(origin):
 
     destinations = [row[0] for row in rows]
     return destinations
+
+def get_flights_number(origin, dest):
+    
+    query = f'SELECT month, origin, dest FROM flights WHERE origin = ? AND dest = ?'
+    cursor.execute(query, (origin, dest,))
+    rows = cursor.fetchall()
+    flights_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    
+    count_flights_df = flights_df.groupby(by=['month']).size().reset_index(name='numFlights')
+    new_df = pd.DataFrame(columns=['month', 'numFlights'])
+    new_df['month'] = list(range(1,13))
+    num_list = []
+    
+    for month, numFlights in zip(new_df['month'], new_df['numFlights']):
+        
+        if month in count_flights_df['month'].values:
+            numFlights = count_flights_df[count_flights_df['month'] == month]['numFlights'].iloc[0]
+            
+        else:
+            numFlights = 0
+            
+        num_list.append(numFlights)
+        
+    new_df['numFlights'] = num_list
+    
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=new_df['month'], y=new_df['numFlights'], name='Number of flights',
+                         line=dict(color='blue', width=2), mode='lines+markers'))
+    fig.update_layout(title=f'Number of flights from {origin} to {dest} in each month',
+                      xaxis=dict(title=dict(text='Month'), type='category'),yaxis=dict(title=dict(text='Number of flights')))
+    fig.update_layout(plot_bgcolor='white')
+    
+    return fig

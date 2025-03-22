@@ -10,47 +10,42 @@ from numpy import pi, sin, cos
 connection = sqlite3.connect('flights_database.db', check_same_thread=False)
 cursor = connection.cursor()
 
-def top_five_planes():
+def getTailnumPlanes(tailnum_list):
     
-    query = f'SELECT * FROM planes'
-    cursor.execute(query)
+    query = f'SELECT * FROM planes WHERE tailnum IN ({','.join(['?']*len(tailnum_list))})'
+    cursor.execute(query, tailnum_list)
     rows = cursor.fetchall()
     planes_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    
+    return planes_df
 
-    unique_planes_df = planes_df.drop_duplicates(subset=['manufacturer', 'model'])
-    
-    count_planes_df = planes_df.groupby(by=['manufacturer', 'model']).size().reset_index(name='numPlanes')
-    top_five = count_planes_df.sort_values(by=['numPlanes'], ascending=False).head()
-    
-    result = pd.DataFrame()
-    
-    for manufacturer, model, numPlanes in zip(top_five['manufacturer'], top_five['model'], top_five['numPlanes']):
-        result = pd.concat([result, unique_planes_df[(unique_planes_df['manufacturer'] == manufacturer) & (unique_planes_df['model'] == model)]])
-        
-    result = result.assign(numPlanes=list(top_five['numPlanes']))
-    result = result.drop(columns=['tailnum', 'year'])
-    
-    return result
-
-def top_five_flights_JFK():
+def top_five_planes_JFK():
     
     query = f'SELECT * FROM flights WHERE origin = ?'
     cursor.execute(query, ('JFK',))
     rows = cursor.fetchall()
-    flights_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
-
-    unique_planes_df = flights_df.drop_duplicates(subset=['tailnum'])
+    JFK_flights_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
     
-    count_planes_df = flights_df.groupby(by=['tailnum']).size().reset_index(name='numFlights')
-    top_five = count_planes_df.sort_values(by=['numFlights'], ascending=False).head()
+    count_tailnum_df = JFK_flights_df.groupby(by=['tailnum']).size().reset_index(name='numTailnum')
+    sorted_count_tailnum_df = count_tailnum_df.sort_values(by=['tailnum'], ascending=True)
     
-    result = pd.DataFrame()
+    unique_tailnum = sorted_count_tailnum_df.drop_duplicates(subset=['tailnum'])
+    tailnum_list = list(unique_tailnum['tailnum'])
     
-    # for manufacturer, model, numPlanes in zip(top_five['manufacturer'], top_five['model'], top_five['numPlanes']):
-    #     result = pd.concat([result, unique_planes_df[(unique_planes_df['manufacturer'] == manufacturer) & (unique_planes_df['model'] == model)]])
-        
-    # result = result.assign(numPlanes=list(top_five['numPlanes']))
-    # result = result.drop(columns=['tailnum', 'year'])
+    planes_df = getTailnumPlanes(tailnum_list)
+    planes_df = planes_df.sort_values(by=['tailnum'], ascending=True)
+    planes_df = planes_df.assign(numTailnum=count_tailnum_df['numTailnum'])
+    
+    unique_planes_df = planes_df.drop_duplicates(subset=['manufacturer', 'model'])
+    numPlanes_count_list = []
+    
+    for manufacturer, model in zip(unique_planes_df['manufacturer'], unique_planes_df['model']):
+        this_numPlanes = planes_df.loc[(planes_df['manufacturer'] == manufacturer) & (planes_df['model'] == model), 'numTailnum'].sum()
+        numPlanes_count_list.append(this_numPlanes)
+    
+    result = unique_planes_df.assign(numPlanes=numPlanes_count_list)
+    result = result.sort_values(by=['numPlanes'], ascending=False).head()
+    result = result.drop(columns=['tailnum','year','numTailnum'])
     
     return result
 
@@ -134,7 +129,7 @@ def check_plane_model(tailnum_list):
     planes_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
     
     result = planes_df.drop_duplicates(subset=['manufacturer', 'model'])
-    result = result.drop(columns=['year','tailnum'])
+    result = result.drop(columns=['year','tailnum', 'type'])
     
     count_planes_df = planes_df.groupby(by=['year']).size().reset_index(name='numModels')
     # count_planes_df = count_planes_df.sort_values(by=['year'], ascending=False)
@@ -296,15 +291,6 @@ def getAirportInfo(airport):
     
     return airport_df
 
-def getTailnumPlanes(tailnum_list):
-    
-    query = f'SELECT * FROM planes WHERE tailnum IN ({','.join(['?']*len(tailnum_list))})'
-    cursor.execute(query, tailnum_list)
-    rows = cursor.fetchall()
-    planes_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
-    
-    return planes_df
-
 def getAngleBetween(origin, dest):
     
     faa_list = [origin, dest]
@@ -335,3 +321,16 @@ def getAirportFullName(airports_list):
     airports_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
     
     return airports_df
+
+def getDSTMeaning(input):
+    
+    if input == 'A':
+        result = 'Standard US DST'
+    elif input == 'U':
+        result = 'Unknown DST'
+    elif input == 'N':
+        result = 'No DST'
+    elif input == None:
+        result = 'Unknown DST'
+    
+    return result
