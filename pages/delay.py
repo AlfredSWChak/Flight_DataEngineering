@@ -94,7 +94,6 @@ import matplotlib.pyplot as plt
 # if __name__ == "__main__":
 #     main()
 
-
 st.sidebar.title('Functions')
 
 options_set = ('Flight statistics for delay',
@@ -116,9 +115,9 @@ def click_button():
 if add_selectbox == 'Flight statistics for delay':
     st.header('Flight Statistics for Delay')
 
-    origin = st.selectbox('Select Departture Airport:', ['EWR', 'LGA', 'JFK'])
+    origin = st.sidebar.selectbox('Select Departture Airport:', ['EWR', 'LGA', 'JFK'])
     destination_options = flt.get_all_destinations(origin)
-    dest = st.selectbox('Select Destination Airport:', destination_options)
+    dest = st.sidebar.selectbox('Select Destination Airport:', destination_options)
 
     flights_df = flt.get_flight_data()
     filtered_df = flights_df[(flights_df['origin'] == origin) & (flights_df['dest'] == dest)]
@@ -171,18 +170,15 @@ elif add_selectbox == 'Delay analysis - Possible causes: Weather 🌦️':
     temp_origin = ex.getAirportFullName(['EWR', 'LGA', 'JFK'])
     joined_list = temp_origin[['faa','name']].agg('-'.join, axis=1)
         
-    origin_selection = st.selectbox('Select Departure Airport:', sorted(joined_list))
+    origin_selection = st.sidebar.selectbox('Select Departure Airport:', sorted(joined_list))
     origin = origin_selection[:3]
     
-    # origin = st.selectbox('Select Departure Airport:',['EWR', 'LGA', 'JFK'])
     dest_list = sorted(pt3.unique_arrive_airports_input(origin))
     temp_dest = ex.getAirportFullName(dest_list)
     joined_dest_list = temp_dest[['faa','name']].agg('-'.join, axis=1)
         
-    dest_selection = st.selectbox('Select Arrival Airport:', sorted(joined_dest_list))
+    dest_selection = st.sidebar.selectbox('Select Arrival Airport:', sorted(joined_dest_list))
     dest = dest_selection[:3]
-    
-    # dest = st.selectbox('Select Arrival Airport:',dest_list)
     
     input_start_month = st.selectbox('Select the month of departure:',month_list)
     input_end_month = st.selectbox('Select the month of arrival:',month_list[month_list.index(input_start_month):])

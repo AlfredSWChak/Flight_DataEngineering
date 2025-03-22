@@ -14,8 +14,7 @@ st.sidebar.title('Functions')
 options_set = ('General Information of **Airports**',
                'General Information of **Airlines**',
                'General Information of **Flights**',
-               'General Information of **Weather**',
-               'Flight statistics on a specific day')
+               'General Information of **Weather**')
 
 month_list = list(calendar.month_name)[1:]
 
@@ -30,45 +29,7 @@ if 'clicked' not in st.session_state:
 def click_button():
     st.session_state.clicked = True
 
-if add_selectbox == 'Flight statistics on a specific day':
-    st.header('Flight statistics on a specific day')
-
-    c_1 = st.container()
-        
-    with c_1:
-        date = st.date_input('Select a date', value=None, min_value='2023-01-01', max_value='2023-12-31')
-        
-        temp = ex.getAirportFullName(['EWR', 'LGA', 'JFK'])
-        joined_list = temp[['faa','name']].agg('-'.join, axis=1)
-        
-        selection = st.selectbox('Select an airport', sorted(joined_list))
-        airport = selection[:3]
-    
-        button_clicked = st.button('Select')
-        
-    c_2 = st.container(border=True)  
-        
-    with c_2:
-        if button_clicked:
-            
-            month = date.month
-            day = date.day
-            
-            numFlights, numUniqueDest, destMost, numMost =  pt3.printStatisticsOnDateAtAirport(month, day, airport)
-            
-            st.text('On '+str(day)+'/'+str(month)+' at '+airport+', there are '+str(numFlights)+' flights.')
-            st.text('On '+str(day)+'/'+str(month)+' at '+airport+', there are '+str(numUniqueDest)+' unique destinations.')
-            st.text('On '+str(day)+'/'+str(month)+' at '+airport+', '+destMost+' is visited most often with '+str(numMost)+' flights.')
-            
-            fig = pt3.printFlightsOnDateAtAirport(month, day, airport)
-            fig.update_layout(showlegend=False, dragmode=False)
-            fig.update_coloraxes(showscale=False)
-            fig.update_layout(hoverlabel_font_color='black', font_color = 'blue')
-            fig.update_traces(marker=dict(size=5, color='DarkSlateGrey'), textposition='top center')
-            
-            st.plotly_chart(fig, use_container_width=True)
-  
-elif add_selectbox == 'General Information of **Airports**':
+if add_selectbox == 'General Information of **Airports**':
     st.header('General Information of airports')
 
     c_1 = st.container(border=True)
@@ -83,65 +44,48 @@ elif add_selectbox == 'General Information of **Airports**':
         st.plotly_chart(fig, use_container_width=True)
         
     st.subheader('Airport General Information')
-    
+   
     c_4 = st.container()
     
     with c_4:
-        cols = st.columns((4, 4), gap = 'medium')
+        airport_df = pt3.getTable('airports')
+        temp = ex.getAirportFullName(airport_df['faa'])
+        joined_list = temp[['faa','name']].agg('-'.join, axis=1)
+        
+        selection = st.sidebar.selectbox('Select an Airport:', joined_list)
+        airport = selection[:3]
+        
+        cols = st.columns(2, gap = 'small')
         
         with cols[0]:
-            airport_df = pt3.getTable('airports')
-            temp = ex.getAirportFullName(airport_df['faa'])
-            joined_list = temp[['faa','name']].agg('-'.join, axis=1)
-            
-            selection = st.selectbox('Select an Airport:', joined_list)
-            airport = selection[:3]
-            
+            airport_row = ex.getAirportInfo(airport)
+            st.write(f'Full name: :blue[{airport_row['name'][0]}]')
+            st.write(f'Daylight savings: :blue[{ex.getDSTMeaning(airport_row['dst'][0])}]')
+            st.write('Time Zone: GMT',airport_row['tz'][0])
+        
         with cols[1]:
             airport_row = ex.getAirportInfo(airport)
-            st.write('Full name: ',airport_row['name'][0])
+            st.write('Latitude: ',airport_row['lat'][0],'°')
+            st.write('Longitude: ',airport_row['lon'][0],'°')
             st.write('Altitude: ',airport_row['alt'][0],'m')
-            st.write('Time Zone: GMT',airport_row['tz'][0])
             
     c_5 = st.container(border=True)
     
     with c_5: 
+        unique_origin = pt3.unique_depart_airports_input(airport)
+        
+        if (len(unique_origin) == 0):
+            st.write(f'There are no flights data about :red[{selection}].')
+        elif (len(unique_origin) == 1):
+            st.write(f':blue[{selection}] can be flied from: :blue[{unique_origin[0]}].')
+        elif (len(unique_origin) == 2):
+            st.write(f':blue[{selection}] can be flied from: :blue[{unique_origin[0]}] and :blue[{unique_origin[1]}].')
+        elif (len(unique_origin) == 3):
+            st.write(f':blue[{selection}] can be flied from: :blue[{unique_origin[0]}], :blue[{unique_origin[1]}] and :blue[{unique_origin[2]}].')
+        
         fig = ex.printOneAirport(airport)
         fig.update_layout(dragmode=False)
         st.plotly_chart(fig, use_container_width=True)
-        
-    st.subheader('Top five busiest routes of selected airport(s)')
-    
-    c_2 = st.container()
-        
-    with c_2:
-        temp = ex.getAirportFullName(['EWR', 'LGA', 'JFK'])
-        joined_list = temp[['faa','name']].agg('-'.join, axis=1)
-        
-        selection = st.selectbox('Select a departure airport', sorted(joined_list))
-        airport = selection[:3]
-        
-        button_clicked = st.button('Submit')   
-       
-    c_3 = st.container(border=True)
-        
-    with c_3:   
-        if button_clicked:
-            result = ex.top_five_flights(airport)
-            fig = ex.printTopFiveFlights(list(result['origin']), list(result['dest']))
-            
-            fig.update_layout(geo_scope='usa')
-            fig.update_layout(title = f'Top five flights of {airport}')
-            fig.update_layout(showlegend=False, dragmode=False)
-            fig.update_layout(hoverlabel_font_color='black', font_color = 'blue')
-            fig.update_traces(marker=dict(size=5, color='DarkSlateGrey'), textposition='top center')
-            fig.update_coloraxes(showscale=False)
-            st.plotly_chart(fig, use_container_width=True)
-            
-            result = result.drop(columns=['origin'])
-            # st.table(result.set_index(result.columns[0]))
-            result.columns = ['Destination Airport', 'Distance of flight (km)', 'Number of flights']
-            st.dataframe(result.set_index(result.columns[0]), use_container_width=True)
             
 elif add_selectbox == 'General Information of **Airlines**':
     st.header('General Information on airlines')
@@ -152,14 +96,14 @@ elif add_selectbox == 'General Information of **Airlines**':
         temp = alnes.getAirlines_list()
         joined_df = temp[['carrier','name']].agg('-'.join, axis=1)
 
-        airline = st.selectbox('Select an airline:', sorted(set(joined_df)))
+        airline = st.sidebar.selectbox('Select an airline:', sorted(set(joined_df)))
         airline_abbrv = airline[:2]
         airline_fullName = airline[3:]
         
-    c_2 = st.container()
+    c_2 = st.container(border=True)
     
     with c_2:
-        unique_models_df, numOfPlanes, numOfUniqueModels, count_years_df = alnes.getAllTailnum(airline_abbrv)
+        unique_models_df, numOfPlanes, numOfUniqueModels, count_years_df, models_df = alnes.getAllTailnum(airline_abbrv)
         st.write(airline_fullName,'has total', numOfPlanes,'planes. ',numOfUniqueModels,'different models are provided.')
         
         manufacturer, model, numModel, year = alnes.getOldestModels(count_years_df)
@@ -170,23 +114,32 @@ elif add_selectbox == 'General Information of **Airlines**':
         
         # st.table(count_years_df.set_index(count_years_df.columns[0]))
         
-        cols = st.columns(2, gap = 'small')
+        # cols = st.columns(2, gap = 'small')
         
-        with cols[0]:
-            unique_models_df_copy = unique_models_df.copy()
-            unique_models_df_copy.columns = ['Manufacturer', 'Model', 'Seats', 'Number of planes']
-            # st.table(unique_models_df_copy.set_index(unique_models_df_copy.columns[0]))
-            st.dataframe(unique_models_df_copy.set_index(unique_models_df_copy.columns[0]), use_container_width=True)
-        with cols[1]:
-            plot_df = unique_models_df.rename(columns={'model': 'Model', 'numModels': 'Number of models'})
-            st.bar_chart(data= plot_df, x='Model', y='Number of models', horizontal=True, use_container_width=True)
-              
-        # manufacturer = st.selectbox('Select a model:', sorted(set(manufacturers_list)))
+        # with cols[0]:
         
-        # models_list = alnes.getModelsList(models_df, manufacturer)
-        # model = st.selectbox('Select a model:', sorted(set(models_list)))
+    c_3 = st.container()
+    
+    with c_3:
+        unique_models_df_copy = unique_models_df.copy()
+        unique_models_df_copy.columns = ['Manufacturer', 'Model', 'Seats', 'Number of planes']
+        st.dataframe(unique_models_df_copy.set_index(unique_models_df_copy.columns[0]), use_container_width=True)
         
-        fig = alnes.getModelStatistics(unique_models_df)
+        # with cols[1]:
+    c_4 = st.container()
+    
+    # with c_4:
+    #     agg_list = unique_models_df[['manufacturer', 'model']].agg('-'.join, axis=1)
+    #     unique_models_df['model'] = list(agg_list)
+    #     plot_df = unique_models_df.rename(columns={'model': 'Model', 'numModels': 'Number of models'})
+    #     st.bar_chart(data= plot_df, x='Model', y='Number of models', horizontal=True, use_container_width=True)
+        
+    c_5 = st.container(border=True)
+    
+    with c_5:
+        scope = st.radio('Select a scope:', ('Model', 'Manufacturer', 'Year'), horizontal=True)
+        
+        fig = alnes.getModelStatistics(scope, unique_models_df, models_df)
         st.plotly_chart(fig, use_container_width=True)
         
 elif add_selectbox == 'General Information of **Flights**':
@@ -195,20 +148,20 @@ elif add_selectbox == 'General Information of **Flights**':
     c_1 = st.container()
     
     with c_1:
-        cols = st.columns(3, gap = 'small')
+        cols = st.columns(2, gap = 'small')
+        
+        # with cols[0]:
+        origin = st.sidebar.selectbox('Select a Departure Airport:',['EWR', 'LGA', 'JFK'])
+        dest_list = sorted(pt3.unique_arrive_airports_input(origin))
+        dest = st.sidebar.selectbox('Select an Arrival Airport:',dest_list)
         
         with cols[0]:
-            origin = st.selectbox('Select a Departure Airport:',['EWR', 'LGA', 'JFK'])
-            dest_list = sorted(pt3.unique_arrive_airports_input(origin))
-            dest = st.selectbox('Select an Arrival Airport:',dest_list)
-        
-        with cols[1]:
             st.write('Flight Distance:',ex.get_geodesicDistance(origin, dest),'km')
             st.write('Flight Time:', ex.get_airtime(origin, dest),'minutes')
             st.write('Altitude difference:', ex.get_alt_diff(origin, dest),'m')
             st.write('Time zone difference:', ex.get_tz_diff(origin, dest),'hours')
         
-        with cols[2]:
+        with cols[1]:
             avg_dep_delay, avg_arr_delay = flt.averageDelay(origin, dest)
             
             st.write('Average ***Departure*** Delay:', avg_dep_delay,'min')
@@ -243,10 +196,16 @@ elif add_selectbox == 'General Information of **Flights**':
         result, bar_result = ex.check_plane_model(list(new_result['tailnum']))
         
         result_copy = result.copy()
-        result_copy.columns = ['Type', 'Manufacturer', 'Model', 'Number of engines', 'Seats', 'Speed(m/s)', 'Engine']
+        result_copy.columns = ['Manufacturer', 'Model', 'Number of engines', 'Seats', 'Speed (m/s)', 'Engine']
         st.write('There are',len(result),'unique models:')
-        # st.table(result_copy.set_index(result_copy.columns[0]))
         st.dataframe(result_copy.set_index(result_copy.columns[0]), use_container_width=True)
+        
+    c_3 = st.container(border=True)
+    
+    with c_3: 
+        fig = flt.get_flights_number(origin, dest)
+        st.plotly_chart(fig, use_container_width=True)
+        
 
 elif add_selectbox == 'General Information of **Weather**':
     st.header('General Information about weather')
@@ -257,7 +216,7 @@ elif add_selectbox == 'General Information of **Weather**':
         temp = ex.getAirportFullName(['EWR', 'LGA', 'JFK'])
         joined_list = temp[['faa','name']].agg('-'.join, axis=1)
         
-        selection = st.selectbox('Select an airport', sorted(joined_list))
+        selection = st.sidebar.selectbox('Select an airport', sorted(joined_list))
         airport = selection[:3]
         
         cols = st.columns((4, 4), gap = 'medium')

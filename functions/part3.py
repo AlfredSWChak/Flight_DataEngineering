@@ -355,47 +355,6 @@ def amongOfDelayFlights(start_month, end_month, dest):
     print('For destination',dest,'during month',start_month,'to',end_month,', the amount of delay flights is',amount,'.')
     
     return amount
-
-def planes_speed():
-    query_flights = "SELECT tailnum, distance, air_time FROM flights WHERE air_time > 0"
-    cursor.execute(query_flights)
-    flights_data = cursor.fetchall()
-
-    speed_dict = {}
-    for tailnum, distance, air_time in flights_data:
-        if tailnum not in speed_dict:
-            speed_dict[tailnum] = {"total_distance": 0, "total_time": 0}
-            speed_dict[tailnum]["total_distance"] += distance
-            speed_dict[tailnum]["total_time"] += air_time
-
-    average_speed = {tailnum: data["total_distance"] / data["total_time"] for tailnum, data in speed_dict.items() if data["total_time"] > 0}
-
-    query_planes = "SELECT tailnum, model FROM planes"
-    cursor.execute(query_planes)
-    planes_data = cursor.fetchall()
-
-    planemodel_speeds = {}
-    planemodel_counts = {}
-
-    for tailnum, model in planes_data:
-        if tailnum in average_speed:
-            if model not in planemodel_speeds:
-                planemodel_speeds[model] = 0
-                planemodel_counts[model] = 0
-            planemodel_speeds[model] += average_speed[tailnum]
-            planemodel_counts[model] += 1
-    
-    total_speed = {model: planemodel_speeds[model] / planemodel_counts[model] for model in planemodel_speeds}
-
-    update_query = "UPDATE planes SET speed = ? WHERE model = ?"
-    for model, average_speed in total_speed.items():
-        cursor.execute(update_query, (average_speed, model))
-
-    connection.commit()
-    
-    # export("planes")
-    
-# planes_speed()
     
 def compute_wind_direction_from_NYC():
     
@@ -442,10 +401,19 @@ def unique_depart_airports():
     cursor.execute(query, origin_df_list)
     rows = cursor.fetchall()
     airports_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
-       
-    print(airports_df)
     
     return
+
+def unique_depart_airports_input(dest):
+    
+    query = f'SELECT origin FROM flights WHERE dest = ?'
+    cursor.execute(query, (dest,))
+    rows = cursor.fetchall()
+    origin_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    
+    origin_df_list = origin_df.drop_duplicates()['origin'].tolist()
+
+    return origin_df_list
 
 def unique_arrive_airports():
     
@@ -460,8 +428,6 @@ def unique_arrive_airports():
     cursor.execute(query, dest_df_list)
     rows = cursor.fetchall()
     airports_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
-       
-    # print(airports_df)
     
     return dest_df_list
 
@@ -478,8 +444,6 @@ def unique_arrive_airports_input(origin):
     cursor.execute(query, dest_df_list)
     rows = cursor.fetchall()
     airports_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
-       
-    # print(airports_df)
     
     return dest_df_list
 
