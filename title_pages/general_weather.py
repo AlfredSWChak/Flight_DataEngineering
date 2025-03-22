@@ -37,7 +37,7 @@ with c_1:
         
     with cols[1]:
         fig, result = wthr.hourlyAverage(airport, month_list)
-        st.write(f'***Average*** of {season}')
+        st.write(f'***Average***:')
         st.write('Wind Speed:',round(result['wind_speed'],3),'m/s')
         st.write('Wind Gust:',round(result['wind_gust'],3), 'm/s')
         st.write('Visibility:',round(result['visib'],3),'m')     

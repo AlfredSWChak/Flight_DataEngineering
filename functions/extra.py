@@ -27,15 +27,24 @@ def top_five_planes(airport):
     flights_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
     
     count_tailnum_df = flights_df.groupby(by=['tailnum']).size().reset_index(name='numTailnum')
-    sorted_count_tailnum_df = count_tailnum_df.sort_values(by=['tailnum'], ascending=True)
     
-    unique_tailnum = sorted_count_tailnum_df.drop_duplicates(subset=['tailnum'])
-    tailnum_list = list(unique_tailnum['tailnum'])
-    
+    tailnum_list = list(count_tailnum_df['tailnum'])
+   
     planes_df = getTailnumPlanes(tailnum_list)
-    planes_df = planes_df.sort_values(by=['tailnum'], ascending=True)
-    planes_df = planes_df.assign(numTailnum=count_tailnum_df['numTailnum'])
     
+    numTailnum_list = []
+    
+    for item in planes_df['tailnum']:
+        
+        if item in count_tailnum_df['tailnum'].values:
+           numTailnum = count_tailnum_df[count_tailnum_df['tailnum'] == item]['numTailnum'].iloc[0]
+        else:
+            numTailnum = 0
+        
+        numTailnum_list.append(numTailnum)
+        
+    planes_df['numTailnum'] = numTailnum_list
+        
     unique_planes_df = planes_df.drop_duplicates(subset=['manufacturer', 'model'])
     numPlanes_count_list = []
     
@@ -49,15 +58,44 @@ def top_five_planes(airport):
     
     return result
 
+def top_five_airlines(airport):
+    
+    query = f'SELECT * FROM flights WHERE origin = ?'
+    cursor.execute(query, (airport,))
+    rows = cursor.fetchall()
+    flights_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    
+    count_df = flights_df.groupby(by=['carrier']).size().reset_index(name='numFlights')
+    
+    query = f'SELECT * FROM airlines'
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    airlines_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    
+    numFlights_list = []
+    
+    for item in airlines_df['carrier']:
+        
+        if item in count_df['carrier'].values:
+           numFlights = count_df[count_df['carrier'] == item]['numFlights'].iloc[0]
+        else:
+            numFlights = 0
+        
+        numFlights_list.append(numFlights)
+        
+    airlines_df['numFlights'] = numFlights_list
+        
+    result = airlines_df.sort_values(by=['numFlights'], ascending=False)
+    
+    fig = px.pie(count_df, values='numFlights', names='carrier', title=f'Proportions of different airlines departed from {airport}', color_discrete_sequence=px.colors.sequential.Aggrnyl)
+    fig.update_layout(legend=dict(title=dict(text='Airlines', font_color='grey')))
+    
+    return fig, result
+
 def top_five_flights(airport):
     
-    if(airport == 'All airports'):
-        query = f'SELECT origin, dest, distance FROM flights'
-        cursor.execute(query)
-    else:
-        query = f'SELECT origin, dest, distance FROM flights WHERE origin = ?'
-        cursor.execute(query, (airport,))
-    
+    query = f'SELECT origin, dest, distance FROM flights WHERE origin = ?'
+    cursor.execute(query, (airport,))
     rows = cursor.fetchall()
     flights_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
     
@@ -409,7 +447,68 @@ def printN_NYC_airports():
     # fig.update_layout(title = 'Airports in NYC')
     fig.update_layout(showlegend=False)
     fig.update_layout(
-        map=dict(center=dict(lat=40.730610, lon=-73.935242), # this will center on the point
+        map=dict(center=dict(lat=40.712776, lon=-74.005974), # this will center on the point
         zoom=8))
     
     return fig
+
+def unique_arrive_airports_input(origin):
+    
+    query = f'SELECT dest FROM flights WHERE origin = ?'
+    cursor.execute(query, (origin,))
+    rows = cursor.fetchall()
+    dest_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    
+    dest_df_list = dest_df.drop_duplicates()['dest'].tolist()
+    
+    return dest_df_list
+
+def unique_depart_airports_input(dest):
+    
+    query = f'SELECT origin FROM flights WHERE dest = ?'
+    cursor.execute(query, (dest,))
+    rows = cursor.fetchall()
+    origin_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    
+    origin_df_list = origin_df.drop_duplicates()['origin'].tolist()
+
+    return origin_df_list
+
+def unique_dest_input(dest_list):
+    numUnique_dest = 0
+    
+    for dest in dest_list:
+        if len(unique_depart_airports_input(dest)) == 1:
+            numUnique_dest += 1
+    
+    return numUnique_dest
+
+def number_of_airlines(airport):
+    
+    query = f'SELECT carrier FROM flights WHERE origin = ?'
+    cursor.execute(query, (airport,))
+    rows = cursor.fetchall()
+    flights_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    
+    carrier_list = flights_df.drop_duplicates()['carrier'].tolist()
+    
+    numAirlines = len(carrier_list)
+    
+    return numAirlines
+
+def number_of_models(airport):
+    
+    query = f'SELECT tailnum FROM flights WHERE origin = ?'
+    cursor.execute(query, (airport,))
+    rows = cursor.fetchall()
+    tailnum_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    
+    tailnum_list = tailnum_df.drop_duplicates()['tailnum'].tolist()
+    
+    planes_df = getTailnumPlanes(tailnum_list)
+    
+    model_list = planes_df.drop_duplicates(subset=['model'])['model'].tolist()
+    
+    numModels = len(model_list)
+    
+    return numModels
