@@ -8,12 +8,15 @@ import functions.flights as flt
 import functions.weather as wthr
 import calendar
 from datetime import datetime
+import plotly.express as px
 
 st.sidebar.title('Functions')
 
 options_set = ('Flight statistics on a specific day',
                'Top five busiest routes',
-               'Top five plane models')
+               'Top five used plane models',
+               'Top five popular airlines'
+               )
 
 month_list = list(calendar.month_name)[1:]
 
@@ -99,8 +102,8 @@ elif add_selectbox == 'Top five busiest routes':
             result.columns = ['Destination Airport', 'Distance of flight (km)', 'Number of flights']
             st.dataframe(result.set_index(result.columns[0]), use_container_width=True)
 
-elif add_selectbox == 'Top five plane models':
-    st.header('Top FIVE most used plane models')
+elif add_selectbox == 'Top five used plane models':
+    st.header('Top FIVE most used plane models of selected airport')
     
     c_1 = st.container()
         
@@ -135,7 +138,27 @@ elif add_selectbox == 'Top five plane models':
         #     st.write('Number of seats:',model_row['seats'].iloc[0])
         #     st.write('Number of planes:',model_row['numPlanes'].iloc[0])
 
-# bkhm = st.sidebar.button("Back to home page", icon='🔙') 
-
-# if bkhm:
-#     st.switch_page("home.py") 
+elif add_selectbox == 'Top five popular airlines':
+    st.header('Top FIVE most popular airlines of selected airport')
+    
+    c_1 = st.container()
+        
+    with c_1:
+        temp = ex.getAirportFullName(['EWR', 'LGA', 'JFK'])
+        joined_list = temp[['faa','name']].agg('-'.join, axis=1)
+        
+        selection = st.selectbox('Select a departure airport', sorted(joined_list))
+        airport = selection[:3]
+        
+        button_clicked = st.button('Submit')   
+       
+    c_2 = st.container(border=True)
+        
+    with c_2:   
+        if button_clicked:
+            fig, result = ex.top_five_airlines(airport)
+            result_copy = result.copy().head()
+            result_copy.columns = ['Abbreviation', 'Full Name', 'Number of flights']
+            st.dataframe(result_copy.set_index(result_copy.columns[0]), use_container_width=True)
+            
+            st.plotly_chart(fig, use_container_width=True)
