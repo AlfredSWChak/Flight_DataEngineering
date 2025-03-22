@@ -65,6 +65,7 @@ def getModelStatistics(scope, unique_models_df, models_df):
     elif scope == 'Year':
         years_df = models_df.groupby(by=['year']).size().reset_index(name='numModels')
         fig = px.pie(years_df, values='numModels', names='year', title='Proportions of different plane year of the whole fleet', color_discrete_sequence=px.colors.sequential.Aggrnyl)
+        
     
     else:
         return fig

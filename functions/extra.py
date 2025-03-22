@@ -19,14 +19,14 @@ def getTailnumPlanes(tailnum_list):
     
     return planes_df
 
-def top_five_planes_JFK():
+def top_five_planes(airport):
     
     query = f'SELECT * FROM flights WHERE origin = ?'
-    cursor.execute(query, ('JFK',))
+    cursor.execute(query, (airport,))
     rows = cursor.fetchall()
-    JFK_flights_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    flights_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
     
-    count_tailnum_df = JFK_flights_df.groupby(by=['tailnum']).size().reset_index(name='numTailnum')
+    count_tailnum_df = flights_df.groupby(by=['tailnum']).size().reset_index(name='numTailnum')
     sorted_count_tailnum_df = count_tailnum_df.sort_values(by=['tailnum'], ascending=True)
     
     unique_tailnum = sorted_count_tailnum_df.drop_duplicates(subset=['tailnum'])
@@ -325,12 +325,91 @@ def getAirportFullName(airports_list):
 def getDSTMeaning(input):
     
     if input == 'A':
-        result = 'Standard US DST'
+        result = 'Standard US'
     elif input == 'U':
-        result = 'Unknown DST'
+        result = 'Unknown'
     elif input == 'N':
-        result = 'No DST'
+        result = 'No'
     elif input == None:
-        result = 'Unknown DST'
+        result = 'Unknown'
     
     return result
+
+def number_of_flights(origin, scope, graph):
+    
+    scope = scope.lower()
+    
+    query = f'SELECT * FROM flights WHERE origin = ?'
+    cursor.execute(query, (origin,))
+    rows = cursor.fetchall()
+    flights_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    
+    count_flights_df = flights_df.groupby(by=[scope]).size().reset_index(name='numFlights')
+    new_df = pd.DataFrame(columns=[scope, 'numFlights'])
+    
+    if scope == 'month':
+        new_df[scope] = list(range(1,13))
+    elif scope == 'day':
+        new_df[scope] = list(range(1,32))
+    elif scope == 'hour':
+        new_df[scope] = list(range(0,25))
+        
+    num_list = []
+    
+    for item, numFlights in zip(new_df[scope], new_df['numFlights']):
+        
+        if item in count_flights_df[scope].values:
+            numFlights = count_flights_df[count_flights_df[scope] == item]['numFlights'].iloc[0]
+            
+        else:
+            numFlights = 0
+            
+        num_list.append(numFlights)
+        
+    new_df['numFlights'] = num_list
+    
+    avg_numFlights= np.mean(num_list)
+    
+    if graph:
+        return new_df
+    else:
+        return avg_numFlights
+
+def number_of_flights_graph(scope):
+    
+    scope = scope.lower()
+    
+    EWR_df = number_of_flights('EWR', scope, True)
+    JFK_df = number_of_flights('JFK', scope, True)
+    LGA_df = number_of_flights('LGA', scope, True)
+    
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=EWR_df[scope], y=EWR_df['numFlights'], name='EWR',
+                         line=dict(color='blue', width=2), mode='lines+markers'))
+    fig.add_trace(go.Scatter(x=JFK_df[scope], y=JFK_df['numFlights'], name='JFK',
+                         line=dict(color='red', width=2), mode='lines+markers'))
+    fig.add_trace(go.Scatter(x=LGA_df[scope], y=LGA_df['numFlights'], name='LGA',
+                         line=dict(color='green', width=2), mode='lines+markers'))
+    fig.update_layout(title=f'Number of flights departed from NYC',
+                      xaxis=dict(title=dict(text=scope), type='category'),yaxis=dict(title=dict(text='Number of flights')))
+    fig.update_layout(plot_bgcolor='white')      
+ 
+    return fig
+
+def printN_NYC_airports():
+    
+    NYC_list = ['EWR', 'JFK', 'LGA']
+    
+    NYC_df = getAirportFullName(NYC_list)
+    
+    fig = go.Figure()
+    fig.add_trace(go.Scattermap(lon = [NYC_df['lon'].iloc[0]], lat = [NYC_df['lat'].iloc[0]], mode = "markers", marker = dict(color = 'blue', size=10), opacity = 1, name='EWR'))
+    fig.add_trace(go.Scattermap(lon = [NYC_df['lon'].iloc[1]], lat = [NYC_df['lat'].iloc[1]], mode = "markers", marker = dict(color = 'red', size=10), opacity = 1, name='JFK'))
+    fig.add_trace(go.Scattermap(lon = [NYC_df['lon'].iloc[2]], lat = [NYC_df['lat'].iloc[2]], mode = "markers", marker = dict(color = 'green', size=10), opacity = 1, name='LGA'))
+    # fig.update_layout(title = 'Airports in NYC')
+    fig.update_layout(showlegend=False)
+    fig.update_layout(
+        map=dict(center=dict(lat=40.730610, lon=-73.935242), # this will center on the point
+        zoom=8))
+    
+    return fig
