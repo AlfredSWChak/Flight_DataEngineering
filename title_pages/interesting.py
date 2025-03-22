@@ -98,7 +98,7 @@ elif add_selectbox == 'Top five busiest routes':
             result.columns = ['Destination Airport', 'Distance of flight (km)', 'Number of flights']
             st.dataframe(result.set_index(result.columns[0]), use_container_width=True)
             
-bkhm = st.sidebar.button("Back to home page", icon='🔙') 
+# bkhm = st.sidebar.button("Back to home page", icon='🔙') 
 
-if bkhm:
-    st.switch_page("home.py") 
+# if bkhm:
+#     st.switch_page("home.py") 
