@@ -1,37 +1,6 @@
 import streamlit as st
 import functions.extra as ex
 
-st.set_page_config(page_title = 'Project Flights', 
-                   layout = 'wide', 
-                   initial_sidebar_state = 'expanded')
-
-# st.sidebar.markdown(
-#         """
-#         <style>
-#             [data-testid="stSidebarNav"]{
-#                 background-image: url(https://www.google.com/url?sa=i&url=https%3A%2F%2Fvu.nl%2Fnl%2Fover-de-vu%2Fmeer-over%2Fhuisstijl&psig=AOvVaw1NbRQ1juYqf-dEq8n0jhca&ust=1742733567939000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCMiggczanYwDFQAAAAAdAAAAABAE);
-#                 background-repeat: no-repeat;
-#                 padding-top: 120px;
-#                 background-position: 20px 20px;
-#             }
-#         </style>
-#         """,
-#         unsafe_allow_html=True
-#     )
-
-st.sidebar.page_link('home.py', label='Home Page', icon='🏠')
-st.sidebar.page_link('pages/general.py', label='General Information', icon='ℹ️')    
-st.sidebar.page_link('pages/delay.py', label='Delay Analysis', icon='⁉️')
-st.sidebar.page_link('pages/interesting.py', label='Interesting Findings', icon='💡')
-
-# home = st.Page('home.py', title='Home Page', icon='🏠')
-# general = st.Page('pages/general.py', title='General Information', icon='ℹ️')    
-# delay = st.Page('pages/delay.py', title='Delay Analysis', icon='⁉️')
-# interest = st.Page('pages/interesting.py', title='Interesting Findings', icon='💡')
-
-# pg = st.navigation([home, general, delay, interest])
-# pg.run()
-
 st.title('General Information of JFK airport')
 
 st.header('Top 5 busiest routes')
