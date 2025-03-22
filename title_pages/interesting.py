@@ -12,7 +12,8 @@ from datetime import datetime
 st.sidebar.title('Functions')
 
 options_set = ('Flight statistics on a specific day',
-               'Top five busiest routes')
+               'Top five busiest routes',
+               'Top five plane models')
 
 month_list = list(calendar.month_name)[1:]
 
@@ -41,7 +42,7 @@ if add_selectbox == 'Flight statistics on a specific day':
         selection = st.selectbox('Select an airport', sorted(joined_list))
         airport = selection[:3]
     
-        button_clicked = st.button('Select')
+        button_clicked = st.button('Submit')
         
     c_2 = st.container(border=True)  
         
@@ -66,7 +67,7 @@ if add_selectbox == 'Flight statistics on a specific day':
             st.plotly_chart(fig, use_container_width=True)
 
 elif add_selectbox == 'Top five busiest routes':
-    st.header('Top five busiest routes of selected airport(s)')
+    st.header('Top FIVE busiest routes of selected airport')
     
     c_1 = st.container()
         
@@ -97,7 +98,43 @@ elif add_selectbox == 'Top five busiest routes':
             result = result.drop(columns=['origin'])
             result.columns = ['Destination Airport', 'Distance of flight (km)', 'Number of flights']
             st.dataframe(result.set_index(result.columns[0]), use_container_width=True)
-            
+
+elif add_selectbox == 'Top five plane models':
+    st.header('Top FIVE most used plane models')
+    
+    c_1 = st.container()
+        
+    with c_1:
+        temp = ex.getAirportFullName(['EWR', 'LGA', 'JFK'])
+        joined_list = temp[['faa','name']].agg('-'.join, axis=1)
+        
+        selection = st.selectbox('Select a departure airport', sorted(joined_list))
+        airport = selection[:3]
+        
+        button_clicked = st.button('Submit')  
+    
+    c_2 = st.container(border=True)
+        
+    with c_2:   
+        if button_clicked:   
+            result = ex.top_five_planes(airport)
+        
+            result_copy = result.copy()
+            result_copy.columns = ['Type', 'Manufacturer', 'Model', 'Number of engines', 'Seats', 'Speed', 'Engine', 'Number of flights']
+            st.dataframe(result_copy.set_index(result_copy.columns[0]), use_container_width=True)
+        # cols = st.columns(3, gap = 'small')
+        # with cols[0]:
+        #     model = st.radio('Select a model:', set(result['model']))
+        #     model_row = result.loc[result['model'] == model]
+        # with cols[1]:
+        #     st.write('Type:',model_row['type'].iloc[0])
+        #     st.write('Number of engines:',model_row['engines'].iloc[0])
+        #     st.write('Engine:',model_row['engine'].iloc[0])
+        # with cols[2]:
+        #     st.write('Speed:',model_row['speed'].iloc[0])
+        #     st.write('Number of seats:',model_row['seats'].iloc[0])
+        #     st.write('Number of planes:',model_row['numPlanes'].iloc[0])
+
 # bkhm = st.sidebar.button("Back to home page", icon='🔙') 
 
 # if bkhm:

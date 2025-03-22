@@ -47,7 +47,7 @@ with c_4:
     with cols[0]:
         airport_row = ex.getAirportInfo(airport)
         st.write(f'Full name: :blue[{airport_row['name'][0]}]')
-        st.write(f'Daylight savings: :blue[{ex.getDSTMeaning(airport_row['dst'][0])}]')
+        st.write(f'Daylight Savings Time zone: {ex.getDSTMeaning(airport_row['dst'][0])}')
         st.write('Time Zone: GMT',airport_row['tz'][0])
     
     with cols[1]:
@@ -62,13 +62,13 @@ with c_5:
     unique_origin = pt3.unique_depart_airports_input(airport)
     
     if (len(unique_origin) == 0):
-        st.write(f'There are no flights data about :red[{selection}].')
+        st.write(f'There are :red[NO FLIGHTS DATA] about :blue[{selection}].')
     elif (len(unique_origin) == 1):
-        st.write(f':blue[{selection}] can be flied from: :blue[{unique_origin[0]}].')
+        st.write(f':blue[{selection}] can be travelled from: :blue[{unique_origin[0]}].')
     elif (len(unique_origin) == 2):
-        st.write(f':blue[{selection}] can be flied from: :blue[{unique_origin[0]}] and :blue[{unique_origin[1]}].')
+        st.write(f':blue[{selection}] can be travelled from: :blue[{unique_origin[0]}] and :blue[{unique_origin[1]}].')
     elif (len(unique_origin) == 3):
-        st.write(f':blue[{selection}] can be flied from: :blue[{unique_origin[0]}], :blue[{unique_origin[1]}] and :blue[{unique_origin[2]}].')
+        st.write(f':blue[{selection}] can be travelled from: :blue[{unique_origin[0]}], :blue[{unique_origin[1]}] and :blue[{unique_origin[2]}].')
     
     fig = ex.printOneAirport(airport)
     fig.update_layout(dragmode=False)
