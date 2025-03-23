@@ -343,9 +343,9 @@ def getAngleBetween(origin, dest):
     dest_lat = airports_df[airports_df['faa'] == dest]['lat'].iloc[0]
     dest_lon = airports_df[airports_df['faa'] == dest]['lon'].iloc[0]
     
-    delta_lon = (origin_lon - dest_lon)
-    y = float(math.cos(origin_lat) * math.sin(delta_lon))
-    x = float(math.cos(dest_lat) * math.sin(origin_lat) - math.sin(dest_lat) * math.cos(origin_lat) * math.cos(delta_lon))
+    delta_lon = (dest_lon - origin_lon)
+    y = float(math.cos(math.radians(dest_lat)) * math.sin(math.radians(delta_lon)))
+    x = float(math.cos(math.radians(origin_lat)) * math.sin(math.radians(dest_lat)) - math.sin(math.radians(origin_lat)) * math.cos(math.radians(dest_lat)) * math.cos(math.radians(delta_lon)))
         
     angle = math.degrees(math.atan2(y ,x))        
     

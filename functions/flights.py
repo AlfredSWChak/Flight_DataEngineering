@@ -101,12 +101,12 @@ def delayDotProduct(start_month, end_month, origin, dest):
         if (time_hour in delay_weather_df['time_hour'].tolist()) and (tailnum in planes_df['tailnum'].tolist()):    
             wind_direction_weather = delay_weather_df[delay_weather_df['time_hour'] == time_hour]['wind_dir'].iloc[0]
             wind_speed_weather = delay_weather_df[delay_weather_df['time_hour'] == time_hour]['wind_speed'].iloc[0]
-            angle = abs(dest_direction - wind_direction_weather)    
+            angle = dest_direction - wind_direction_weather   
             magnitude = planes_df[planes_df['tailnum'] == tailnum]['speed'].iloc[0]
-            dot_product = abs(magnitude) * abs(wind_speed_weather) * math.cos(math.radians(angle))
+            dot_product = abs(magnitude) * abs(wind_speed_weather) * math.cos(math.radians(abs(angle)))
         
             angle_list.append(angle)
-            dot_product_list.append(dot_product)
+            dot_product_list.append(abs(dot_product))
         else:
             angle_list.append(0)
             dot_product_list.append(0)
