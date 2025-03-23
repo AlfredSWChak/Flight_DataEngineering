@@ -1,13 +1,28 @@
 import sqlite3
-import math
-import matplotlib.pyplot as plt
+import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-import pandas as pd
-import numpy as np
 
 connection = sqlite3.connect('flights_database.db', check_same_thread=False)
 cursor = connection.cursor()
+
+def showAllAirports():
+    
+    query = f'SELECT * FROM airports'
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    airports_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    
+    fig = px.scatter_geo(airports_df, hover_name='name', 
+                         lat='lat', 
+                         lon = 'lon', 
+                         color='alt',
+                         color_continuous_scale='rainbow',
+                         size_max=1)
+    fig.update_layout(title = 'All the airports with different altitudes')
+    fig.update_coloraxes(colorbar_title_text='Altitude of airports')
+    
+    return fig
 
 def getAirlines_list():
     

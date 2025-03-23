@@ -1,11 +1,11 @@
 import sqlite3
 import pandas as pd
-import seaborn as sns
-import plotly.express as px
-import plotly.graph_objects as go
-import math
 import numpy as np
 from numpy import pi, sin, cos
+import math
+import plotly.express as px
+import plotly.graph_objects as go
+import functions.manipulating as mp
 
 connection = sqlite3.connect('flights_database.db', check_same_thread=False)
 cursor = connection.cursor()
@@ -54,7 +54,7 @@ def top_five_planes(airport):
     
     result = unique_planes_df.assign(numPlanes=numPlanes_count_list)
     result = result.sort_values(by=['numPlanes'], ascending=False).head()
-    result = result.drop(columns=['tailnum','year','numTailnum'])
+    result = result.drop(columns=['type','tailnum','year','numTailnum'])
     
     return result
 
@@ -415,6 +415,7 @@ def number_of_flights(origin, scope, graph):
 
 def number_of_flights_graph(scope):
     
+    title_scope = scope
     scope = scope.lower()
     
     EWR_df = number_of_flights('EWR', scope, True)
@@ -429,7 +430,7 @@ def number_of_flights_graph(scope):
     fig.add_trace(go.Scatter(x=LGA_df[scope], y=LGA_df['numFlights'], name='LGA',
                          line=dict(color='green', width=2), mode='lines+markers'))
     fig.update_layout(title=f'Number of flights departed from NYC',
-                      xaxis=dict(title=dict(text=scope), type='category'),yaxis=dict(title=dict(text='Number of flights')))
+                      xaxis=dict(title=dict(text=title_scope), type='category'),yaxis=dict(title=dict(text='Number of flights')))
     fig.update_layout(plot_bgcolor='white')      
  
     return fig
@@ -536,3 +537,64 @@ def printUniqueDestinations():
     fig.update_layout(legend=dict(title=dict(text='Depart from', font_color='grey')))
     
     return EWR_numUnique_dest, JFK_numUnique_dest, LGA_numUnique_dest, fig
+
+def unique_arrive_airports_input(origin):
+    
+    query = f'SELECT dest FROM flights WHERE origin = ?'
+    cursor.execute(query, (origin,))
+    rows = cursor.fetchall()
+    dest_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    
+    dest_df_list = dest_df.drop_duplicates()['dest'].tolist()
+    
+    query = f'SELECT * FROM airports WHERE faa IN ({','.join(['?']*len(dest_df_list))})'
+    cursor.execute(query, dest_df_list)
+    rows = cursor.fetchall()
+    airports_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    
+    return dest_df_list
+
+def drawMultipleLines(faaList, month, day, origin_faa):
+    
+    airports_df = mp.getTable('airports')
+    
+    new_df = pd.DataFrame(columns = ["faa", "name", "lat", "lon", "alt", "tz", "dst", "tzone"])
+    
+    for i in range(len(faaList)):
+        for j in range(len(airports_df)):
+            input_lat = 0.0
+            input_lon = 0.0
+                
+            if (faaList[i] == airports_df["faa"][j]):
+                input_lat = airports_df.iloc[j] ["lat"]
+                input_lon = airports_df.iloc[j] ["lon"]
+                new_df.loc[j] = airports_df.iloc[j]
+    
+    origin_row = getAirportRow(origin_faa).iloc[0]
+    origin_lon = origin_row["lon"]
+    origin_lat = origin_row["lat"]
+    new_df.loc[origin_row.index[0]] = origin_row
+    
+    fig = px.scatter_geo(new_df, hover_name="name", lat="lat", lon="lon", color="alt", text="faa")  
+    
+    for i in range(len(new_df) - 1):
+        input_lon = new_df.iloc[i]["lon"]
+        input_lat = new_df.iloc[i]["lat"]
+        fig.add_trace(go.Scattergeo(locationmode = 'USA-states',lon = [input_lon, origin_lon], lat = [input_lat, origin_lat], mode = "lines", line = dict(width = 1,color = 'red'), opacity = 1))
+    
+    fig.update_layout(title_text = 'Flights to New York from specific locations', showlegend = False)
+    fig.update_layout(title = 'Flights departed from ' + origin_faa + ' on ' + str(day) + '/' + str(month) ,geo_scope="usa")
+
+    return fig
+
+def getAirportRow(airport):
+    
+    airports_df = mp.getTable('airports')
+    
+    airport_row = pd.DataFrame(columns = ["faa", "name", "lat", "lon", "alt", "tz", "dst", "tzone"])
+    
+    for i in range(len(airports_df)):
+        if (airports_df["faa"][i] == airport):
+            airport_row.loc[i] = airports_df.iloc[i]  
+    
+    return airport_row
