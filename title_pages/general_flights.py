@@ -1,20 +1,21 @@
 import streamlit as st
 import functions.extra as ex
 import functions.flights as flt
+import functions.manipulating as mp
 
 st.header('General Information on flights')
 
 c_1 = st.container()
 
 with c_1:
-    temp_origin = ex.getAirportFullName(['EWR', 'LGA', 'JFK'])
+    temp_origin = mp.getAirportsListInfo(['EWR', 'LGA', 'JFK'])
     joined_origin_list = temp_origin[['faa','name']].agg('-'.join, axis=1)
 
     origin_selection = st.sidebar.selectbox('Select Departure Airport:', sorted(joined_origin_list))
     origin = origin_selection[:3]
 
-    dest_list = sorted(ex.unique_arrive_airports_input(origin))
-    temp_dest = ex.getAirportFullName(dest_list)
+    dest_list = sorted(mp.unique_arrive_airports_input(origin))
+    temp_dest = mp.getAirportsListInfo(dest_list)
     joined_dest_list = temp_dest[['faa','name']].agg('-'.join, axis=1)
 
     dest_selection = st.sidebar.selectbox('Select Arrival Airport:', sorted(joined_dest_list))

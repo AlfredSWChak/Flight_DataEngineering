@@ -1,6 +1,6 @@
 import streamlit as st
-import functions.extra as ex
 import functions.weather as wthr
+import functions.manipulating as mp
 import calendar
 
 month_list = list(calendar.month_name)[1:]
@@ -10,7 +10,7 @@ st.header('General Information about weather')
 c_1 = st.container(border=True)
         
 with c_1:
-    temp = ex.getAirportFullName(['EWR', 'LGA', 'JFK'])
+    temp = mp.getAirportsListInfo(['EWR', 'LGA', 'JFK'])
     joined_list = temp[['faa','name']].agg('-'.join, axis=1)
     
     selection = st.sidebar.selectbox('Select an airport', sorted(joined_list))

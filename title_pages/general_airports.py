@@ -22,7 +22,7 @@ c_2 = st.container()
 
 with c_2:
     airport_df = mp.getTable('airports')
-    temp = ex.getAirportFullName(airport_df['faa'])
+    temp = mp.getAirportsListInfo(airport_df['faa'])
     joined_list = temp[['faa','name']].agg('-'.join, axis=1)
     
     selection = st.sidebar.selectbox('Select an Airport:', joined_list)
@@ -31,13 +31,13 @@ with c_2:
     cols = st.columns(2, gap = 'small')
     
     with cols[0]:
-        airport_row = ex.getAirportInfo(airport)
+        airport_row = mp.getAirportInfo(airport)
         st.write(f'Full name: :blue[{airport_row['name'][0]}]')
         st.write(f'Daylight Savings Time zone: {ex.getDSTMeaning(airport_row['dst'][0])}')
         st.write('Time Zone: GMT',airport_row['tz'][0])
     
     with cols[1]:
-        airport_row = ex.getAirportInfo(airport)
+        airport_row = mp.getAirportInfo(airport)
         st.write('Latitude: ',airport_row['lat'][0],'°')
         st.write('Longitude: ',airport_row['lon'][0],'°')
         st.write('Altitude: ',airport_row['alt'][0],'m')
@@ -45,7 +45,7 @@ with c_2:
 c_3 = st.container(border=True)
 
 with c_3: 
-    unique_origin = ex.unique_depart_airports_input(airport)
+    unique_origin = mp.unique_depart_airports_input(airport)
     
     if (len(unique_origin) == 0):
         st.write(f'There are :red[NO FLIGHTS] depart from NYC airports to :blue[{selection}].')

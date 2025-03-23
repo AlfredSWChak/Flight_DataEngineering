@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 import math
 import matplotlib.pyplot as plt
-import functions.extra as ex
 
 connection = sqlite3.connect('flights_database.db', check_same_thread=False)
 cursor = connection.cursor()
@@ -80,48 +79,6 @@ def showAllTableNames():
     
     print(cursor.fetchall())
     return
-    
-def printFlightsOnDateAtAirport(month, day, airport):
-    
-    query = f'SELECT month, day, carrier, origin, dest, distance FROM flights WHERE month = ? AND day = ? AND origin = ?'
-    cursor.execute(query, [month, day, airport])
-    rows = cursor.fetchall()
-    new_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
-        
-    destinationList = new_df['dest']
-    
-    result = ex.drawMultipleLines(destinationList, month, day, airport)
-    
-    return result
-
-def printStatisticsOnDateAtAirport(month, day, airport):
-    
-    query = f'SELECT month, day, origin, dest FROM flights WHERE month = ? AND day = ? AND origin = ?'
-    cursor.execute(query, [month, day, airport])
-    
-    rows = cursor.fetchall()
-    new_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
-        
-    numFlights = len(new_df)
-
-    uniqueDest_df = new_df.drop_duplicates(subset=['dest'])
-    numUniqueDest = len(uniqueDest_df)
-    
-    numMost = 0
-    
-    for i in range(len(uniqueDest_df)):
-        counter = 0
-        
-        
-        for j in range(len(new_df)):
-            if (uniqueDest_df.iloc[i]['dest'] == new_df.iloc[j]['dest']):
-                counter = counter + 1
-                
-        if (counter > numMost):
-            destMost = uniqueDest_df.iloc[i]['dest']
-            numMost = counter
-    
-    return numFlights, numUniqueDest, destMost, numMost
 
 def unique_depart_airports():
     
@@ -175,9 +132,43 @@ def unique_arrive_airports_input(origin):
     
     dest_df_list = dest_df.drop_duplicates()['dest'].tolist()
     
-    query = f'SELECT * FROM airports WHERE faa IN ({','.join(['?']*len(dest_df_list))})'
-    cursor.execute(query, dest_df_list)
+    return dest_df_list
+
+def getTailnumPlanes(tailnum_list):
+    
+    query = f'SELECT * FROM planes WHERE tailnum IN ({','.join(['?']*len(tailnum_list))})'
+    cursor.execute(query, tailnum_list)
+    rows = cursor.fetchall()
+    planes_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    
+    return planes_df
+
+def getAirportRow(airport):
+    
+    airports_df = getTable('airports')
+    
+    airport_row = pd.DataFrame(columns = ["faa", "name", "lat", "lon", "alt", "tz", "dst", "tzone"])
+    
+    for i in range(len(airports_df)):
+        if (airports_df["faa"][i] == airport):
+            airport_row.loc[i] = airports_df.iloc[i]  
+    
+    return airport_row
+
+def getAirportInfo(airport):
+    
+    query = f'SELECT * FROM airports WHERE faa = ?'
+    cursor.execute(query, (airport,))
+    rows = cursor.fetchall()
+    airport_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    
+    return airport_df
+
+def getAirportsListInfo(airports_list):
+    
+    query = f'SELECT * FROM airports WHERE faa IN ({','.join(['?']*len(airports_list))})'
+    cursor.execute(query, airports_list)
     rows = cursor.fetchall()
     airports_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
     
-    return dest_df_list
+    return airports_df

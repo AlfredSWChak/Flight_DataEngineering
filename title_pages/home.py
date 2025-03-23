@@ -1,5 +1,6 @@
 import streamlit as st
 import functions.extra as ex
+import functions.manipulating as mp
 
 st.title('General statistics of the flights departing from NYC')
 
@@ -21,7 +22,7 @@ with c_1:
     cols = st.columns(3, gap='small', border=True)
 
     with cols[0]:
-        dest_list = ex.unique_arrive_airports_input('EWR')
+        dest_list = mp.unique_arrive_airports_input('EWR')
         numUnique_dest = ex.unique_dest_input(dest_list)
         numAirlines = ex.number_of_airlines('EWR')
         numModels = ex.number_of_models('EWR')
@@ -33,7 +34,7 @@ with c_1:
         st.write('Plane models:', numModels)
         
     with cols[1]:
-        dest_list = ex.unique_arrive_airports_input('JFK')
+        dest_list = mp.unique_arrive_airports_input('JFK')
         numUnique_dest = ex.unique_dest_input(dest_list)
         numAirlines = ex.number_of_airlines('JFK')
         numModels = ex.number_of_models('JFK')
@@ -45,7 +46,7 @@ with c_1:
         st.write('Plane models:', numModels)
         
     with cols[2]:
-        dest_list = ex.unique_arrive_airports_input('LGA')
+        dest_list = mp.unique_arrive_airports_input('LGA')
         numUnique_dest = ex.unique_dest_input(dest_list)
         numAirlines = ex.number_of_airlines('LGA')
         numModels = ex.number_of_models('LGA')

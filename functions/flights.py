@@ -6,6 +6,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import functions.weather as wthr
 import functions.extra as ex
+import functions.manipulating as mp
 
 connection = sqlite3.connect('flights_database.db', check_same_thread=False)
 cursor = connection.cursor()
@@ -84,7 +85,7 @@ def nonDelayDotProduct(start_month, end_month, origin, dest):
     
     temp = delay_flights_df.copy().drop_duplicates(subset=['tailnum'])
     tailnum_list = delay_flights_df['tailnum'].tolist()   
-    planes_df = ex.getTailnumPlanes(tailnum_list)
+    planes_df = mp.getTailnumPlanes(tailnum_list)
     
     dot_product_list = []
     angle_list = []
@@ -126,7 +127,7 @@ def delayDotProduct(start_month, end_month, origin, dest):
     
     temp = delay_flights_df.copy().drop_duplicates(subset=['tailnum'])
     tailnum_list = delay_flights_df['tailnum'].tolist()   
-    planes_df = ex.getTailnumPlanes(tailnum_list)
+    planes_df = mp.getTailnumPlanes(tailnum_list)
     
     dot_product_list = []
     angle_list = []
