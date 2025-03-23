@@ -9,13 +9,15 @@ import functions.weather as wthr
 import calendar
 from datetime import datetime
 import plotly.express as px
+import plotly.graph_objects as go
 
 st.sidebar.title('Functions')
 
 options_set = ('Flight statistics on a specific day',
                'Top five busiest routes',
                'Top five used plane models',
-               'Top five popular airlines'
+               'Top five popular airlines',
+               'Unique destinations'
                )
 
 month_list = list(calendar.month_name)[1:]
@@ -162,3 +164,22 @@ elif add_selectbox == 'Top five popular airlines':
             st.dataframe(result_copy.set_index(result_copy.columns[0]), use_container_width=True)
             
             st.plotly_chart(fig, use_container_width=True)
+            
+elif add_selectbox == 'Unique destinations':
+    st.header('Unique destinations departed from each airport')
+    
+    c_1 = st.container()
+        
+    with c_1:
+        EWR_numUnique_dest, JFK_numUnique_dest, LGA_numUnique_dest, fig = ex.printUniqueDestinations()
+        
+        st.write(f'EWR has',len(EWR_numUnique_dest),f'unique destinations: {EWR_numUnique_dest}.')
+        st.write(f'JFK has',len(JFK_numUnique_dest),f'unique destinations: {JFK_numUnique_dest}.')
+        st.write(f'LGA has',len(LGA_numUnique_dest),f'unique destinations: {LGA_numUnique_dest}.')
+    
+    c_2 = st.container(border=True)
+        
+    with c_2:
+     
+        st.plotly_chart(fig, use_container_width=True)
+            

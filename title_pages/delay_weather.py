@@ -65,5 +65,5 @@ with c_1:
         # with cols[1]:
         st.plotly_chart(direction_fig, use_container_width=True) 
             
-        st.plotly_chart(visib_fig, use_container_width=True)
+        # st.plotly_chart(visib_fig, use_container_width=True)
           

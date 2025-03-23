@@ -12,7 +12,7 @@ with cols[0]:
     st.write(':green[LGA]: La Guardia Airport')
 
 with cols[1]:
-    fig = ex.printN_NYC_airports()
+    fig = ex.print_NYC_airports()
     st.plotly_chart(fig, use_container_width=True)
 
 # cols = st.columns(3, gap='small', border=True)
@@ -44,7 +44,7 @@ with c_1:
         # st.write('<p style="font-size: 12px;">Newark Liberty International Airport</p>', unsafe_allow_html=True)
         st.write('Destinations:', len(dest_list))
         numUnique_dest = ex.unique_dest_input(dest_list)
-        st.write('Unique destinations:', numUnique_dest)
+        st.write('Unique destinations:', len(numUnique_dest))
         numAirlines = ex.number_of_airlines('EWR')
         st.write('Airlines:', numAirlines)
         numModels = ex.number_of_models('EWR')
@@ -55,7 +55,7 @@ with c_1:
         # st.write('<p style="font-size: 12px;">John F Kennedy International Airport</p>', unsafe_allow_html=True)
         st.write('Destinations:', len(dest_list))
         numUnique_dest = ex.unique_dest_input(dest_list)
-        st.write('Unique destinations:', numUnique_dest)
+        st.write('Unique destinations:', len(numUnique_dest))
         numAirlines = ex.number_of_airlines('JFK')
         st.write('Airlines:', numAirlines)
         numModels = ex.number_of_models('JFK')
@@ -66,7 +66,7 @@ with c_1:
         # st.write('<p style="font-size: 12px;">La Guardia Airport</p>', unsafe_allow_html=True)
         st.write('Destinations:', len(dest_list))
         numUnique_dest = ex.unique_dest_input(dest_list)
-        st.write('Unique destinations:', numUnique_dest)
+        st.write('Unique destinations:', len(numUnique_dest))
         numAirlines = ex.number_of_airlines('LGA')
         st.write('Airlines:', numAirlines)
         numModels = ex.number_of_models('LGA')

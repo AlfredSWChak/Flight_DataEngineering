@@ -155,7 +155,7 @@ def delayDotProduct(start_month, end_month, origin, dest):
         
     wind_fig = px.scatter_polar()
     wind_fig.add_scatterpolar(r=new_delay_flights_df['dotProduct'], theta=new_delay_flights_df['angleBetween'], mode='markers', marker_color='red')
-    # nonDelay_df = nonDelayDotProduct(start_month, end_month, origin, dest)
+    nonDelay_df = nonDelayDotProduct(start_month, end_month, origin, dest)
     # wind_fig.add_scatterpolar(r=nonDelay_df['dotProduct'], theta=nonDelay_df['angleBetween'], mode='markers', marker_color='green')
     
     new_time_hour_list = getNonDelayFlight(start_month, end_month, origin, dest)['time_hour'].tolist()
@@ -171,10 +171,16 @@ def delayDotProduct(start_month, end_month, origin, dest):
     visib_fig.add_trace(go.Histogram(x=non_delay_weather_visib_list, marker_color='rgb(55, 83, 109)', name='Non-Delay'))
     visib_fig.update_layout(bargap=0.2, bargroupgap=0.1)
     
-    direction_fig = wthr.count_direction(new_delay_flights_df)
+    delay_direction_df = wthr.count_direction(new_delay_flights_df)
+    non_delay_direction_df = wthr.count_direction(nonDelay_df)
+    
+    direction_fig = go.Figure()
+    direction_fig.add_trace(go.Histogram(x=delay_direction_df['direction'],name='Delay',marker_color='rgb(26, 118, 255)'))
+    direction_fig.add_trace(go.Histogram(x=non_delay_direction_df['direction'],name='Non-Delay',marker_color='rgb(55, 83, 109)'))
+    direction_fig.update_layout(title_text='Proportions of relative wind directions to the flights directions',xaxis_title_text='Cardinal directions',bargap=0.2,bargroupgap=0.1)
     
     wind_fig.update_layout(title = f'Angle between flight direction and wind direction of delay flights')
-    visib_fig.update_layout(title = f'Visibility of all the flights ')
+    visib_fig.update_layout(title = f'Visibility of all the flights')
     
     return wind_fig, visib_fig, dest_direction, num_delay, num_non_delay, direction_fig
 
