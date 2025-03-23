@@ -4,7 +4,7 @@
 This project visualizes airport data and flight information using `plotly.express` and `plotly.graph_objects`. The dataset consists of airport locations, altitudes, and time zones, and is used to generate various visualizations, including:
 
 - A global map showing all airports.
-- A US-only map filtering American airports.
+- A US-only map filtering US-American airports.
 - Flight paths from NYC to selected airports.
 - Distance calculations and visualizations.
 - Time zone analysis of airports.
@@ -166,11 +166,6 @@ This project includes an SQLite database (```flights_database.db```) that provid
 - Expanded analysis on weather impact on flights, including other weather information, such as raining, snowing.
 
 ## Contributors
-Group FLights 10
+Group Flights 10
 Alfred, Adele, Duncan, Lan
 ```
-
-## References
-Plotly Documentation
-SQLite Documentation
-Seaborn Visualization Guide
