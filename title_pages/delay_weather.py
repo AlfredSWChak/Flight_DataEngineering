@@ -56,7 +56,7 @@ with c_1:
         
         st.write('For destination',dest,'during month',input_start_month,'to',input_end_month,', the amount of flights is',num_delay+num_non_delay,'.')
         st.write('There are',num_delay,'delay flights, and',num_non_delay,'non-delay flights.')
-        st.write(f'The angle between **{origin}** and **{dest}** is', round(dest_direction,2), 'degrees.')
+        st.write(f'The azimuth between **{origin}** and **{dest}** is', round(dest_direction,2), 'degrees.')
         
         cols = st.columns(2, gap = 'small')
     
