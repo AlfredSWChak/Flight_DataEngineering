@@ -434,7 +434,7 @@ def number_of_flights_graph(scope):
  
     return fig
 
-def printN_NYC_airports():
+def print_NYC_airports():
     
     NYC_list = ['EWR', 'JFK', 'LGA']
     
@@ -446,9 +446,7 @@ def printN_NYC_airports():
     fig.add_trace(go.Scattermap(lon = [NYC_df['lon'].iloc[2]], lat = [NYC_df['lat'].iloc[2]], mode = "markers", marker = dict(color = 'green', size=10), opacity = 1, name='LGA'))
     # fig.update_layout(title = 'Airports in NYC')
     fig.update_layout(showlegend=False)
-    fig.update_layout(
-        map=dict(center=dict(lat=40.712776, lon=-74.005974), # this will center on the point
-        zoom=8))
+    fig.update_layout(map=dict(center=dict(lat=40.712776, lon=-74.005974),zoom=8))
     
     return fig
 
@@ -476,12 +474,13 @@ def unique_depart_airports_input(dest):
 
 def unique_dest_input(dest_list):
     numUnique_dest = 0
+    unique_dest_list = []
     
     for dest in dest_list:
         if len(unique_depart_airports_input(dest)) == 1:
-            numUnique_dest += 1
+            unique_dest_list.append(dest)
     
-    return numUnique_dest
+    return unique_dest_list
 
 def number_of_airlines(airport):
     
@@ -512,3 +511,28 @@ def number_of_models(airport):
     numModels = len(model_list)
     
     return numModels
+
+
+def printUniqueDestinations():
+    
+    fig = go.Figure()
+    
+    dest_list = unique_arrive_airports_input('EWR')
+    EWR_numUnique_dest = unique_dest_input(dest_list)
+    numUnique_dest_df = getAirportFullName(EWR_numUnique_dest)
+    fig.add_traces(go.Scattermap(hovertext=numUnique_dest_df['faa'], lon = numUnique_dest_df['lon'], lat = numUnique_dest_df['lat'], mode = "markers", marker = dict(color = 'blue', size=5), opacity = 1, name='EWR'))
+    
+    dest_list = unique_arrive_airports_input('JFK')
+    JFK_numUnique_dest = unique_dest_input(dest_list)
+    numUnique_dest_df = getAirportFullName(JFK_numUnique_dest)
+    fig.add_traces(go.Scattermap(hovertext=numUnique_dest_df['faa'], lon = numUnique_dest_df['lon'], lat = numUnique_dest_df['lat'], mode = "markers", marker = dict(color = 'red', size=5), opacity = 1, name='JFK'))
+    
+    dest_list = unique_arrive_airports_input('LGA')
+    LGA_numUnique_dest = unique_dest_input(dest_list)
+    numUnique_dest_df = getAirportFullName(LGA_numUnique_dest)
+    fig.add_traces(go.Scattermap(hovertext=numUnique_dest_df['faa'], lon = numUnique_dest_df['lon'], lat = numUnique_dest_df['lat'], mode = "markers", marker = dict(color = 'green', size=5), opacity = 1, name='LGA'))
+    
+    fig.update_layout(title = 'Unique destinations departed from each airport',map=dict(center=dict(lat=54.525963,lon=-105.255119),style='light'),)
+    fig.update_layout(legend=dict(title=dict(text='Depart from', font_color='grey')))
+    
+    return EWR_numUnique_dest, JFK_numUnique_dest, LGA_numUnique_dest, fig
