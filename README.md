@@ -13,12 +13,11 @@ This project is part of a larger effort to monitor and analyze flight data, leve
 
 ## Project Structure
 ```
-📂 flight-monitoring
+📂 Flight_DataEngineering
 │── 📜 README.md                  # Documentation file
 │── 📜 dashboard.py               # Streamlit application entry point
 │── 📜 flights_database.db        # SQLite database  
-│── 📜 airports_original.csv      # Airport dataset
-├── 📂 dashboard_pages            # Dashboard pages for Streamlit application
+├── 📂 title_pages            # Dashboard pages for Streamlit application
 │ ├── 📜 delay_flights.py         # Delay-related flight analysis
 │ ├── 📜 delay_weather.py         # Weather-related flight statistics & calculations
 │ ├── 📜 general_airlines.py      # Weather impact analysis
@@ -27,29 +26,32 @@ This project is part of a larger effort to monitor and analyze flight data, leve
 │ ├── 📜 general_weathers.py      # Weather data-related visualizations for differnt seasons
 │ ├── 📜 home.py                  # Home page of the dashboard
 │ └── 📜 interesting.py           # Interesting flight data (maps and selected date analysis)
-├── 📂 functions                  # Modular function scripts  
+├── 📂 functions                  # Modular function scripts for usage in title_pages
 │ ├── 📜 airlines.py              # Airline fleet analysis
+│ ├── 📜 extra.py                 # Supplementary functions
 │ ├── 📜 flights.py               # Flight statistics & calculations
-│ ├── 📜 weather.py               # Weather impact analysis
-│ ├── 📜 part1.py                 # Flight visualizations (Plotly)
-│ ├── 📜 part2.py                 # Database queries (SQLite)
-│ ├── 📜 part3.py                 # Streamlit application
-│ └── 📜 duncan_function.py       # Flight data insights
+│ ├── 📜 manipulating.py          # Database queries (SQLite)
+│ ├── 📜 weather.py               # Functions for weather analysis
+│ ├── 📜 wrangling.py             # Database wrangling
 ├── 📂 database_csv               # Exported database tables
-├── 📂 .streamlit                 # Streamlit config (ignored)
-└── 📜 extra.py                   # Utility functions
+└── 📂 .streamlit                 # Streamlit config (ignored)
 ```
 ## Key Features
 
 ### 1. 🛫 **Interactive Dashboard (Streamlit)**
 - **Multi-page Navigation:**
-  - 🏠 **Home**: Flights from NYC
-  - ℹ️ **General Information**: Airlines, Airports, Flights, Weather
+  - 🏠 **Home**:
+    - **Flights from NYC**
+  - ℹ️ **General Information**:
+    - **Airlines**
+    - **Airports**
+    - **Flights**
+    - **Weather**
   - ⁉️ **Delay Analysis**:
     - **Flight Statistics**
     - **Possible Causes**
-  - **Others**:
-    - **Interesting Findings**
+  - 📍 **Others**:
+    - **Interesting Discoveries**
 - **Dynamic Filters**: Date ranges, airlines, airports
 - **Flight Paths**: Plotly-powered trajectory visualization
 
