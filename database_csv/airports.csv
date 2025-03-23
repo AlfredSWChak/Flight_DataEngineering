@@ -2,7 +2,7 @@ faa,name,lat,lon,alt,tz,dst,tzone
 AAF,Apalachicola Regional Airport,29.72750092,-85.02749634,20.0,-5.0,A,America/New_York
 AAP,Andrau Airpark,29.7224998474,-95.5883026123,79.0,-6.0,A,America/Chicago
 ABE,Lehigh Valley International Airport,40.652099609375,-75.44080352783203,393.0,-5.0,A,America/New_York
-ABI,Abilene Regional Airport,32.4113006592,-99.6819000244,1791.0,-6.0,A,America/Chicago 
+ABI,Abilene Regional Airport,32.4113006592,-99.6819000244,1791.0,-6.0,A,America/Chicago
 ABL,Ambler Airport,67.1063,-157.856989,334.0,-9.0,A,America/Anchorage
 ABQ,Albuquerque International Sunport,35.040199,-106.609001,5355.0,-7.0,A,America/Denver
 ABR,Aberdeen Regional Airport,45.449100494384766,-98.42179870605467,1302.0,-6.0,A,America/Chicago
@@ -526,7 +526,7 @@ HTL,Roscommon County - Blodgett Memorial Airport,44.359798,-84.671095,1150.0,-5.
 HTS,Tri-State/Milton J. Ferguson Field,38.36669922,-82.55799866,828.0,-5.0,A,America/New_York
 HTV,Huntsville Regional Airport,30.7469005585,-95.5871963501,363.0,None,None,None
 HUA,Redstone Army Air Field,34.67869949,-86.68479919,684.0,-6.0,A,America/Chicago
-HUF,Terre Haute Regional Airport, Hulman Field,39.4515,-87.307602,589.0,-5.0,A,America/New_York
+HUF,Terre Haute Regional Airport	(Hulman Field),39.4515,-87.307602,589.0,-5.0,A,America/New_York
 HUL,Houlton International Airport,46.1231002808,-67.792098999,489.0,-5.0,A,America/New_York
 HUS,Hughes Airport,66.04109955,-154.2630005,299.0,-9.0,A,America/Anchorage
 HUT,Hutchinson Municipal Airport,38.0654983521,-97.86060333250002,1543.0,-6.0,A,America/Chicago
@@ -896,7 +896,7 @@ PAH,Barkley Regional Airport,37.06079864501953,-88.7738037109375,410.0,-6.0,A,Am
 PAM,Tyndall Air Force Base,30.0695991516,-85.57540130619999,17.0,-6.0,A,America/Chicago
 PAO,Palo Alto Airport of Santa Clara County,37.461101532,-122.114997864,4.0,-8.0,A,America/Los_Angeles
 PAQ,Warren ""Bud"" Woods Palmer Municipal Airport,61.594898,-149.08901,242.0,-9.0,A,America/Anchorage
-PBF,Pine Bluff Regional Airport, Grider Field,34.1731,-91.9356,206.0,-6.0,A,America/Chicago
+PBF,Pine Bluff Regional Airport	(Grider Field),34.1731,-91.9356,206.0,-6.0,A,America/Chicago
 PBG,Plattsburgh International Airport,44.650901794433594,-73.46810150146484,234.0,-5.0,A,America/New_York
 PBI,Palm Beach International Airport,26.68320083618164,-80.09559631347656,19.0,-5.0,A,America/New_York
 PCD,Prairie Du Chien Municipal Airport,43.019298553467,-91.12370300293,661.0,-6.0,A,None

@@ -84,8 +84,5 @@ def count_direction(flights_df):
     
     flights_df['direction'] = direction_list
     
-    # fig = px.histogram(flights_df, x='direction')
-    # fig = px.pie(flights_df, values=flights_df['direction'].value_counts().values, names=flights_df['direction'].value_counts().index.tolist(), title='Proportions of cardinal directions of delay flights', color_discrete_sequence=px.colors.sequential.Aggrnyl)
-    
     return flights_df
     

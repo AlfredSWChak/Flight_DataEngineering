@@ -10,15 +10,6 @@ import functions.manipulating as mp
 connection = sqlite3.connect('flights_database.db', check_same_thread=False)
 cursor = connection.cursor()
 
-def getTailnumPlanes(tailnum_list):
-    
-    query = f'SELECT * FROM planes WHERE tailnum IN ({','.join(['?']*len(tailnum_list))})'
-    cursor.execute(query, tailnum_list)
-    rows = cursor.fetchall()
-    planes_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
-    
-    return planes_df
-
 def top_five_planes(airport):
     
     query = f'SELECT * FROM flights WHERE origin = ?'
@@ -30,7 +21,7 @@ def top_five_planes(airport):
     
     tailnum_list = list(count_tailnum_df['tailnum'])
    
-    planes_df = getTailnumPlanes(tailnum_list)
+    planes_df = mp.getTailnumPlanes(tailnum_list)
     
     numTailnum_list = []
     
@@ -114,6 +105,65 @@ def top_five_flights(airport):
     
     return result
 
+def printFlightsOnDateAtAirport(month, day, airport):
+    
+    query = f'SELECT month, day, carrier, origin, dest, distance FROM flights WHERE month = ? AND day = ? AND origin = ?'
+    cursor.execute(query, [month, day, airport])
+    rows = cursor.fetchall()
+    new_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+        
+    destinationList = new_df['dest']
+    
+    result = drawMultipleLines(destinationList, month, day, airport)
+    
+    return result
+
+def printStatisticsOnDateAtAirport(month, day, airport):
+    
+    query = f'SELECT month, day, origin, dest FROM flights WHERE month = ? AND day = ? AND origin = ?'
+    cursor.execute(query, [month, day, airport])
+    rows = cursor.fetchall()
+    new_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+        
+    numFlights = len(new_df)
+
+    uniqueDest_df = new_df.drop_duplicates(subset=['dest'])
+    numUniqueDest = len(uniqueDest_df)
+    
+    numMost = 0
+    
+    for i in range(len(uniqueDest_df)):
+        counter = 0
+        
+        
+        for j in range(len(new_df)):
+            if (uniqueDest_df.iloc[i]['dest'] == new_df.iloc[j]['dest']):
+                counter = counter + 1
+                
+        if (counter > numMost):
+            destMost = uniqueDest_df.iloc[i]['dest']
+            numMost = counter
+    
+    return numFlights, numUniqueDest, destMost, numMost
+
+def printOneAirport(airport):
+    
+    query = f'SELECT * FROM airports WHERE faa = ?'
+    cursor.execute(query, (airport,))
+    rows = cursor.fetchall()
+    airport_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+   
+    fig = px.scatter_geo(airport_df, hover_name='name', 
+                         lat='lat', 
+                         lon = 'lon',
+                         size_max=1)
+    fig.update_layout(title = 'The location of the airport')
+    fig.update_traces(marker_color='red', selector=dict(type='scattergeo'))
+    fig.update_traces(marker_symbol="star",selector=dict(type='scattergeo'))
+    fig.update_traces(marker_size=10, selector=dict(type='scattergeo'))
+    
+    return fig
+
 def printTopFiveFlights(origin_list, dest_list):
    
     all_list = origin_list + dest_list
@@ -134,6 +184,46 @@ def printTopFiveFlights(origin_list, dest_list):
         fig.add_trace(go.Scattergeo(locationmode = 'USA-states',lon = [origin_lon, dest_lon], lat = [origin_lat, dest_lat], mode = "lines", line = dict(width = 1,color = 'red'), opacity = 1))
     
     return fig
+
+def print_NYC_airports():
+    
+    NYC_list = ['EWR', 'JFK', 'LGA']
+    
+    NYC_df = mp.getAirportsListInfo(NYC_list)
+    
+    fig = go.Figure()
+    fig.add_trace(go.Scattermap(lon = [NYC_df['lon'].iloc[0]], lat = [NYC_df['lat'].iloc[0]], mode = "markers", marker = dict(color = 'blue', size=10), opacity = 1, name='EWR'))
+    fig.add_trace(go.Scattermap(lon = [NYC_df['lon'].iloc[1]], lat = [NYC_df['lat'].iloc[1]], mode = "markers", marker = dict(color = 'red', size=10), opacity = 1, name='JFK'))
+    fig.add_trace(go.Scattermap(lon = [NYC_df['lon'].iloc[2]], lat = [NYC_df['lat'].iloc[2]], mode = "markers", marker = dict(color = 'green', size=10), opacity = 1, name='LGA'))
+    # fig.update_layout(title = 'Airports in NYC')
+    fig.update_layout(showlegend=False)
+    fig.update_layout(map=dict(center=dict(lat=40.712776, lon=-74.005974),zoom=8))
+    
+    return fig
+
+def printUniqueDestinations():
+    
+    fig = go.Figure()
+    
+    dest_list = mp.unique_arrive_airports_input('EWR')
+    EWR_numUnique_dest = unique_dest_input(dest_list)
+    numUnique_dest_df = mp.getAirportsListInfo(EWR_numUnique_dest)
+    fig.add_traces(go.Scattermap(hovertext=numUnique_dest_df['faa'], lon = numUnique_dest_df['lon'], lat = numUnique_dest_df['lat'], mode = "markers", marker = dict(color = 'blue', size=5), opacity = 1, name='EWR'))
+    
+    dest_list = mp.unique_arrive_airports_input('JFK')
+    JFK_numUnique_dest = unique_dest_input(dest_list)
+    numUnique_dest_df = mp.getAirportsListInfo(JFK_numUnique_dest)
+    fig.add_traces(go.Scattermap(hovertext=numUnique_dest_df['faa'], lon = numUnique_dest_df['lon'], lat = numUnique_dest_df['lat'], mode = "markers", marker = dict(color = 'red', size=5), opacity = 1, name='JFK'))
+    
+    dest_list = mp.unique_arrive_airports_input('LGA')
+    LGA_numUnique_dest = unique_dest_input(dest_list)
+    numUnique_dest_df = mp.getAirportsListInfo(LGA_numUnique_dest)
+    fig.add_traces(go.Scattermap(hovertext=numUnique_dest_df['faa'], lon = numUnique_dest_df['lon'], lat = numUnique_dest_df['lat'], mode = "markers", marker = dict(color = 'green', size=5), opacity = 1, name='LGA'))
+    
+    fig.update_layout(title = 'Unique destinations departed from each airport',map=dict(center=dict(lat=54.525963,lon=-105.255119),style='light'),)
+    fig.update_layout(legend=dict(title=dict(text='Depart from', font_color='grey')))
+    
+    return EWR_numUnique_dest, JFK_numUnique_dest, LGA_numUnique_dest, fig
 
 def available_carrier(origin, dest):
     
@@ -170,48 +260,8 @@ def check_plane_model(tailnum_list):
     result = result.drop(columns=['year','tailnum', 'type'])
     
     count_planes_df = planes_df.groupby(by=['year']).size().reset_index(name='numModels')
-    # count_planes_df = count_planes_df.sort_values(by=['year'], ascending=False)
-    # count_planes_df = count_planes_df.drop(columns=['tailnum', 'type', 'manufacturer','model','engines','seats','speed','engine'])
     
     return result, count_planes_df
-
-def point_sphere(lon, lat):
-    #associate the cartesian coords (x, y, z) to a point on the  globe of given lon and lat
-    #lon longitude
-    #lat latitude
-    lon = lon*pi/180
-    lat = lat*pi/180
-    x = cos(lon) * cos(lat) 
-    y = sin(lon) * cos(lat) 
-    z = sin(lat) 
-    return np.array([x, y, z])
-
-def slerp(A=[100, 45], B=[-50, -25], dir=-1, n=100):
-    #Spherical "linear" interpolation
-    """
-    A=[lonA, latA] lon, lat given in degrees; lon in  (-180, 180], lat in (-90, 90]
-    B=[lonB, latB]
-    returns n points on the great circle of the globe that passes through the  points A, B
-    #represented by lon and lat
-    #if dir=1 it returns the shortest path; for dir=-1 the complement of the shortest path
-    """
-    As = point_sphere(A[0], A[1])
-    Bs = point_sphere(B[0], B[1])
-    alpha = np.arccos(np.dot(As,Bs)) if dir==1 else  2*pi-np.arccos(np.dot(As,Bs))
-    
-    if abs(alpha) < 1e-6 or abs(alpha-2*pi)<1e-6:
-        return A
-    else:
-        t = np.linspace(0, 1, n)
-        P = sin((1 - t)*alpha) 
-        Q = sin(t*alpha)
-        #pts records the cartesian coordinates of the points on the chosen path
-        pts =  np.array([a*As + b*Bs for (a, b) in zip(P,Q)])/sin(alpha)
-        #convert cartesian coords to lons and lats to be passed to go.Scattermapbox
-        lons = 180*np.arctan2(pts[:, 1], pts[:, 0])/pi
-        lats = 180*np.arctan(pts[:, 2]/np.sqrt(pts[:, 0]**2+pts[:,1]**2))/pi
-        
-        return lons, lats
 
 def drawOneFlight(origin, dest):
     
@@ -222,15 +272,7 @@ def drawOneFlight(origin, dest):
     rows = cursor.fetchall()
     airports_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
     
-    # origin_lat = airports_df[airports_df['faa'] == origin]['lat'].iloc[0]
-    # origin_lon = airports_df[airports_df['faa'] == origin]['lon'].iloc[0]
-    # dest_lat = airports_df[airports_df['faa'] == dest]['lat'].iloc[0]
-    # dest_lon = airports_df[airports_df['faa'] == dest]['lon'].iloc[0]
-    
     fig = px.scatter_geo(airports_df, hover_name="name", lat="lat", lon="lon", color="alt", text="faa")  
-    
-    # lons, lats = slerp(A=[origin_lon, origin_lat], B=[dest_lon, dest_lat], dir=1)
-    # fig.add_trace(go.Scattergeo(locationmode = 'USA-states', lon=lons, lat=lats, mode="lines", line_color="red"))
     
     fig.update_layout(title = 'Trace of the flight',geo_scope="usa")
     fig.add_trace(go.Scattergeo(locationmode = 'USA-states',lon = airports_df['lon'], lat = airports_df['lat'], mode = "lines", line = dict(width = 1,color = 'red'), opacity = 1))
@@ -241,6 +283,39 @@ def drawOneFlight(origin, dest):
     
     fig.update_layout(title = 'Trace of the flight',geo_scope="world")
     
+    return fig
+
+def drawMultipleLines(faaList, month, day, origin_faa):
+    
+    airports_df = mp.getTable('airports')
+    
+    new_df = pd.DataFrame(columns = ["faa", "name", "lat", "lon", "alt", "tz", "dst", "tzone"])
+    
+    for i in range(len(faaList)):
+        for j in range(len(airports_df)):
+            input_lat = 0.0
+            input_lon = 0.0
+                
+            if (faaList[i] == airports_df["faa"][j]):
+                input_lat = airports_df.iloc[j] ["lat"]
+                input_lon = airports_df.iloc[j] ["lon"]
+                new_df.loc[j] = airports_df.iloc[j]
+    
+    origin_row = mp.getAirportRow(origin_faa).iloc[0]
+    origin_lon = origin_row["lon"]
+    origin_lat = origin_row["lat"]
+    new_df.loc[origin_row.index[0]] = origin_row
+    
+    fig = px.scatter_geo(new_df, hover_name="name", lat="lat", lon="lon", color="alt", text="faa")  
+    
+    for i in range(len(new_df) - 1):
+        input_lon = new_df.iloc[i]["lon"]
+        input_lat = new_df.iloc[i]["lat"]
+        fig.add_trace(go.Scattergeo(locationmode = 'USA-states',lon = [input_lon, origin_lon], lat = [input_lat, origin_lat], mode = "lines", line = dict(width = 1,color = 'red'), opacity = 1))
+    
+    fig.update_layout(title_text = 'Flights to New York from specific locations', showlegend = False)
+    fig.update_layout(title = 'Flights departed from ' + origin_faa + ' on ' + str(day) + '/' + str(month) ,geo_scope="usa")
+
     return fig
 
 def get_geodesicDistance(origin, dest):
@@ -302,33 +377,6 @@ def get_tz_diff(origin, dest):
     
     return result
 
-def printOneAirport(airport):
-    
-    query = f'SELECT * FROM airports WHERE faa = ?'
-    cursor.execute(query, (airport,))
-    rows = cursor.fetchall()
-    airport_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
-   
-    fig = px.scatter_geo(airport_df, hover_name='name', 
-                         lat='lat', 
-                         lon = 'lon',
-                         size_max=1)
-    fig.update_layout(title = 'The location of the airport')
-    fig.update_traces(marker_color='red', selector=dict(type='scattergeo'))
-    fig.update_traces(marker_symbol="star",selector=dict(type='scattergeo'))
-    fig.update_traces(marker_size=10, selector=dict(type='scattergeo'))
-    
-    return fig
-
-def getAirportInfo(airport):
-    
-    query = f'SELECT * FROM airports WHERE faa = ?'
-    cursor.execute(query, (airport,))
-    rows = cursor.fetchall()
-    airport_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
-    
-    return airport_df
-
 def getAngleBetween(origin, dest):
     
     faa_list = [origin, dest]
@@ -350,15 +398,6 @@ def getAngleBetween(origin, dest):
     angle = math.degrees(math.atan2(y ,x))        
     
     return angle
-
-def getAirportFullName(airports_list):
-    
-    query = f'SELECT * FROM airports WHERE faa IN ({','.join(['?']*len(airports_list))})'
-    cursor.execute(query, airports_list)
-    rows = cursor.fetchall()
-    airports_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
-    
-    return airports_df
 
 def getDSTMeaning(input):
     
@@ -435,54 +474,6 @@ def number_of_flights_graph(scope):
  
     return fig
 
-def print_NYC_airports():
-    
-    NYC_list = ['EWR', 'JFK', 'LGA']
-    
-    NYC_df = getAirportFullName(NYC_list)
-    
-    fig = go.Figure()
-    fig.add_trace(go.Scattermap(lon = [NYC_df['lon'].iloc[0]], lat = [NYC_df['lat'].iloc[0]], mode = "markers", marker = dict(color = 'blue', size=10), opacity = 1, name='EWR'))
-    fig.add_trace(go.Scattermap(lon = [NYC_df['lon'].iloc[1]], lat = [NYC_df['lat'].iloc[1]], mode = "markers", marker = dict(color = 'red', size=10), opacity = 1, name='JFK'))
-    fig.add_trace(go.Scattermap(lon = [NYC_df['lon'].iloc[2]], lat = [NYC_df['lat'].iloc[2]], mode = "markers", marker = dict(color = 'green', size=10), opacity = 1, name='LGA'))
-    # fig.update_layout(title = 'Airports in NYC')
-    fig.update_layout(showlegend=False)
-    fig.update_layout(map=dict(center=dict(lat=40.712776, lon=-74.005974),zoom=8))
-    
-    return fig
-
-def unique_arrive_airports_input(origin):
-    
-    query = f'SELECT dest FROM flights WHERE origin = ?'
-    cursor.execute(query, (origin,))
-    rows = cursor.fetchall()
-    dest_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
-    
-    dest_df_list = dest_df.drop_duplicates()['dest'].tolist()
-    
-    return dest_df_list
-
-def unique_depart_airports_input(dest):
-    
-    query = f'SELECT origin FROM flights WHERE dest = ?'
-    cursor.execute(query, (dest,))
-    rows = cursor.fetchall()
-    origin_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
-    
-    origin_df_list = origin_df.drop_duplicates()['origin'].tolist()
-
-    return origin_df_list
-
-def unique_dest_input(dest_list):
-    numUnique_dest = 0
-    unique_dest_list = []
-    
-    for dest in dest_list:
-        if len(unique_depart_airports_input(dest)) == 1:
-            unique_dest_list.append(dest)
-    
-    return unique_dest_list
-
 def number_of_airlines(airport):
     
     query = f'SELECT carrier FROM flights WHERE origin = ?'
@@ -505,7 +496,7 @@ def number_of_models(airport):
     
     tailnum_list = tailnum_df.drop_duplicates()['tailnum'].tolist()
     
-    planes_df = getTailnumPlanes(tailnum_list)
+    planes_df = mp.getTailnumPlanes(tailnum_list)
     
     model_list = planes_df.drop_duplicates(subset=['model'])['model'].tolist()
     
@@ -513,88 +504,12 @@ def number_of_models(airport):
     
     return numModels
 
-
-def printUniqueDestinations():
+def unique_dest_input(dest_list):
+    numUnique_dest = 0
+    unique_dest_list = []
     
-    fig = go.Figure()
+    for dest in dest_list:
+        if len(mp.unique_depart_airports_input(dest)) == 1:
+            unique_dest_list.append(dest)
     
-    dest_list = unique_arrive_airports_input('EWR')
-    EWR_numUnique_dest = unique_dest_input(dest_list)
-    numUnique_dest_df = getAirportFullName(EWR_numUnique_dest)
-    fig.add_traces(go.Scattermap(hovertext=numUnique_dest_df['faa'], lon = numUnique_dest_df['lon'], lat = numUnique_dest_df['lat'], mode = "markers", marker = dict(color = 'blue', size=5), opacity = 1, name='EWR'))
-    
-    dest_list = unique_arrive_airports_input('JFK')
-    JFK_numUnique_dest = unique_dest_input(dest_list)
-    numUnique_dest_df = getAirportFullName(JFK_numUnique_dest)
-    fig.add_traces(go.Scattermap(hovertext=numUnique_dest_df['faa'], lon = numUnique_dest_df['lon'], lat = numUnique_dest_df['lat'], mode = "markers", marker = dict(color = 'red', size=5), opacity = 1, name='JFK'))
-    
-    dest_list = unique_arrive_airports_input('LGA')
-    LGA_numUnique_dest = unique_dest_input(dest_list)
-    numUnique_dest_df = getAirportFullName(LGA_numUnique_dest)
-    fig.add_traces(go.Scattermap(hovertext=numUnique_dest_df['faa'], lon = numUnique_dest_df['lon'], lat = numUnique_dest_df['lat'], mode = "markers", marker = dict(color = 'green', size=5), opacity = 1, name='LGA'))
-    
-    fig.update_layout(title = 'Unique destinations departed from each airport',map=dict(center=dict(lat=54.525963,lon=-105.255119),style='light'),)
-    fig.update_layout(legend=dict(title=dict(text='Depart from', font_color='grey')))
-    
-    return EWR_numUnique_dest, JFK_numUnique_dest, LGA_numUnique_dest, fig
-
-def unique_arrive_airports_input(origin):
-    
-    query = f'SELECT dest FROM flights WHERE origin = ?'
-    cursor.execute(query, (origin,))
-    rows = cursor.fetchall()
-    dest_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
-    
-    dest_df_list = dest_df.drop_duplicates()['dest'].tolist()
-    
-    query = f'SELECT * FROM airports WHERE faa IN ({','.join(['?']*len(dest_df_list))})'
-    cursor.execute(query, dest_df_list)
-    rows = cursor.fetchall()
-    airports_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
-    
-    return dest_df_list
-
-def drawMultipleLines(faaList, month, day, origin_faa):
-    
-    airports_df = mp.getTable('airports')
-    
-    new_df = pd.DataFrame(columns = ["faa", "name", "lat", "lon", "alt", "tz", "dst", "tzone"])
-    
-    for i in range(len(faaList)):
-        for j in range(len(airports_df)):
-            input_lat = 0.0
-            input_lon = 0.0
-                
-            if (faaList[i] == airports_df["faa"][j]):
-                input_lat = airports_df.iloc[j] ["lat"]
-                input_lon = airports_df.iloc[j] ["lon"]
-                new_df.loc[j] = airports_df.iloc[j]
-    
-    origin_row = getAirportRow(origin_faa).iloc[0]
-    origin_lon = origin_row["lon"]
-    origin_lat = origin_row["lat"]
-    new_df.loc[origin_row.index[0]] = origin_row
-    
-    fig = px.scatter_geo(new_df, hover_name="name", lat="lat", lon="lon", color="alt", text="faa")  
-    
-    for i in range(len(new_df) - 1):
-        input_lon = new_df.iloc[i]["lon"]
-        input_lat = new_df.iloc[i]["lat"]
-        fig.add_trace(go.Scattergeo(locationmode = 'USA-states',lon = [input_lon, origin_lon], lat = [input_lat, origin_lat], mode = "lines", line = dict(width = 1,color = 'red'), opacity = 1))
-    
-    fig.update_layout(title_text = 'Flights to New York from specific locations', showlegend = False)
-    fig.update_layout(title = 'Flights departed from ' + origin_faa + ' on ' + str(day) + '/' + str(month) ,geo_scope="usa")
-
-    return fig
-
-def getAirportRow(airport):
-    
-    airports_df = mp.getTable('airports')
-    
-    airport_row = pd.DataFrame(columns = ["faa", "name", "lat", "lon", "alt", "tz", "dst", "tzone"])
-    
-    for i in range(len(airports_df)):
-        if (airports_df["faa"][i] == airport):
-            airport_row.loc[i] = airports_df.iloc[i]  
-    
-    return airport_row
+    return unique_dest_list

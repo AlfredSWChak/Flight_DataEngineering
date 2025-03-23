@@ -24,7 +24,7 @@ if add_selectbox == 'Flight statistics on a specific day':
     with c_1:
         date = st.date_input('Select a date', value=None, min_value='2023-01-01', max_value='2023-12-31')
         
-        temp = ex.getAirportFullName(['EWR', 'LGA', 'JFK'])
+        temp = mp.getAirportsListInfo(['EWR', 'LGA', 'JFK'])
         joined_list = temp[['faa','name']].agg('-'.join, axis=1)
         
         selection = st.selectbox('Select an airport', sorted(joined_list))
@@ -40,13 +40,13 @@ if add_selectbox == 'Flight statistics on a specific day':
             month = date.month
             day = date.day
             
-            numFlights, numUniqueDest, destMost, numMost =  mp.printStatisticsOnDateAtAirport(month, day, airport)
+            numFlights, numUniqueDest, destMost, numMost =  ex.printStatisticsOnDateAtAirport(month, day, airport)
             
-            st.text('On '+str(day)+'/'+str(month)+' at '+airport+', there are '+str(numFlights)+' flights.')
-            st.text('On '+str(day)+'/'+str(month)+' at '+airport+', there are '+str(numUniqueDest)+' unique destinations.')
-            st.text('On '+str(day)+'/'+str(month)+' at '+airport+', '+destMost+' is visited most often with '+str(numMost)+' flights.')
+            st.write(f'On {day}/{month} at :blue[{airport}], there are',numFlights,'flights.')
+            st.write(f'On {day}/{month} at :blue[{airport}], there are',numUniqueDest,'unique destinations.')
+            st.write(f'On {day}/{month} at :blue[{airport}], **{destMost}** is visited most often with',numMost,'flights.')
             
-            fig = mp.printFlightsOnDateAtAirport(month, day, airport)
+            fig = ex.printFlightsOnDateAtAirport(month, day, airport)
             fig.update_layout(showlegend=False, dragmode=False)
             fig.update_layout(hoverlabel_font_color='black', font_color = 'blue')
             fig.update_coloraxes(showscale=False)
@@ -60,7 +60,7 @@ elif add_selectbox == 'Top five busiest routes':
     c_1 = st.container()
         
     with c_1:
-        temp = ex.getAirportFullName(['EWR', 'LGA', 'JFK'])
+        temp = mp.getAirportsListInfo(['EWR', 'LGA', 'JFK'])
         joined_list = temp[['faa','name']].agg('-'.join, axis=1)
         
         selection = st.selectbox('Select a departure airport', sorted(joined_list))
@@ -93,7 +93,7 @@ elif add_selectbox == 'Top five used plane models':
     c_1 = st.container()
         
     with c_1:
-        temp = ex.getAirportFullName(['EWR', 'LGA', 'JFK'])
+        temp = mp.getAirportsListInfo(['EWR', 'LGA', 'JFK'])
         joined_list = temp[['faa','name']].agg('-'.join, axis=1)
         
         selection = st.selectbox('Select a departure airport', sorted(joined_list))
@@ -117,7 +117,7 @@ elif add_selectbox == 'Top five popular airlines':
     c_1 = st.container()
         
     with c_1:
-        temp = ex.getAirportFullName(['EWR', 'LGA', 'JFK'])
+        temp = mp.getAirportsListInfo(['EWR', 'LGA', 'JFK'])
         joined_list = temp[['faa','name']].agg('-'.join, axis=1)
         
         selection = st.selectbox('Select a departure airport', sorted(joined_list))
