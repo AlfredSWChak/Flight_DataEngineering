@@ -1,28 +1,6 @@
-import pandas as pd
-import numpy as np
 import streamlit as st
-import plotly.express as px
-import sqlite3
-
-import functions.part1 as pt1
-import functions.part3 as pt3
-import functions.part4 as pt4
-
-import altair as alt
-import functions.extra as ex
-import functions.airlines as alnes
 import functions.flights as flt
-import calendar
-from datetime import datetime
 import matplotlib.pyplot as plt
-
-month_list = list(calendar.month_name)[1:]
-
-if 'clicked' not in st.session_state:
-    st.session_state.clicked = False
-
-def click_button():
-    st.session_state.clicked = True
 
 st.header('Flight Statistics for Delay')
 

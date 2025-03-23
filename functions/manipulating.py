@@ -1,10 +1,10 @@
 import sqlite3
-import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import math
+import matplotlib.pyplot as plt
 import seaborn as sns
-import functions.part1 as pt1
+import functions.extra as ex
 
 connection = sqlite3.connect('flights_database.db', check_same_thread=False)
 cursor = connection.cursor()
@@ -91,7 +91,7 @@ def printFlightsOnDateAtAirport(month, day, airport):
         
     destinationList = new_df['dest']
     
-    result = pt1.drawMultipleLines(destinationList, month, day, airport)
+    result = ex.drawMultipleLines(destinationList, month, day, airport)
     
     print('There are '+str(len(new_df))+' flights departed from '+airport+' airport on '+ str(day)+'/'+str(month)+'.')
     

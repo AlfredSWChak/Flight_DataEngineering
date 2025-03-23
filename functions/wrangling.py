@@ -1,14 +1,14 @@
 import sqlite3
-from datetime import datetime
-import functions.part3 as pt3
 import pandas as pd
+from datetime import datetime
+import functions.manipulating as mp
 
 connection = sqlite3.connect('flights_database.db', check_same_thread=False)
 cursor = connection.cursor()
 
 def check_na_flights():
     
-    df = pt3.getTable('flights')
+    df = mp.getTable('flights')
     result = pd.DataFrame()
     
     nan_rows = df.isna().any(axis=1)
@@ -21,7 +21,7 @@ def check_na_flights():
 
 def drop_duplicates_except(except_list):
     
-    df = pt3.getTable('flights')
+    df = mp.getTable('flights')
     result = pd.DataFrame()
     
     column_list = df.columns.tolist()

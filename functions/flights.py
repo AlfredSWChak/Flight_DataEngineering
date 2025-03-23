@@ -1,13 +1,9 @@
 import sqlite3
+import pandas as pd
 import math
-import matplotlib.pyplot as plt
+import calendar
 import plotly.express as px
 import plotly.graph_objects as go
-import pandas as pd
-import numpy as np
-import seaborn as sns
-import calendar
-from datetime import datetime
 import functions.weather as wthr
 import functions.extra as ex
 

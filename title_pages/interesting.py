@@ -1,17 +1,8 @@
 import streamlit as st
-import altair as alt
 import functions.extra as ex
-import functions.part1 as pt1
-import functions.part3 as pt3
-import functions.airlines as alnes
-import functions.flights as flt
-import functions.weather as wthr
-import calendar
-from datetime import datetime
-import plotly.express as px
-import plotly.graph_objects as go
+import functions.manipulating as mp
 
-st.sidebar.title('Functions')
+st.sidebar.title('Features')
 
 options_set = ('Flight statistics on a specific day',
                'Top five busiest routes',
@@ -20,18 +11,10 @@ options_set = ('Flight statistics on a specific day',
                'Unique destinations'
                )
 
-month_list = list(calendar.month_name)[1:]
-
 add_selectbox = st.sidebar.radio('Options', 
                                  options=options_set, 
                                  label_visibility='hidden'
 )
-
-if 'clicked' not in st.session_state:
-    st.session_state.clicked = False
-
-def click_button():
-    st.session_state.clicked = True
 
 if add_selectbox == 'Flight statistics on a specific day':
     st.header('Flight statistics on a specific day')
@@ -57,16 +40,16 @@ if add_selectbox == 'Flight statistics on a specific day':
             month = date.month
             day = date.day
             
-            numFlights, numUniqueDest, destMost, numMost =  pt3.printStatisticsOnDateAtAirport(month, day, airport)
+            numFlights, numUniqueDest, destMost, numMost =  mp.printStatisticsOnDateAtAirport(month, day, airport)
             
             st.text('On '+str(day)+'/'+str(month)+' at '+airport+', there are '+str(numFlights)+' flights.')
             st.text('On '+str(day)+'/'+str(month)+' at '+airport+', there are '+str(numUniqueDest)+' unique destinations.')
             st.text('On '+str(day)+'/'+str(month)+' at '+airport+', '+destMost+' is visited most often with '+str(numMost)+' flights.')
             
-            fig = pt3.printFlightsOnDateAtAirport(month, day, airport)
+            fig = mp.printFlightsOnDateAtAirport(month, day, airport)
             fig.update_layout(showlegend=False, dragmode=False)
-            fig.update_coloraxes(showscale=False)
             fig.update_layout(hoverlabel_font_color='black', font_color = 'blue')
+            fig.update_coloraxes(showscale=False)
             fig.update_traces(marker=dict(size=5, color='DarkSlateGrey'), textposition='top center')
             
             st.plotly_chart(fig, use_container_width=True)
@@ -92,12 +75,12 @@ elif add_selectbox == 'Top five busiest routes':
             result = ex.top_five_flights(airport)
             fig = ex.printTopFiveFlights(list(result['origin']), list(result['dest']))
             
-            fig.update_layout(geo_scope='usa')
             fig.update_layout(title = f'Top five flights of {airport}')
-            fig.update_layout(showlegend=False, dragmode=False)
+            fig.update_layout(geo_scope='usa', showlegend=False, dragmode=False)
             fig.update_layout(hoverlabel_font_color='black', font_color = 'blue')
-            fig.update_traces(marker=dict(size=5, color='DarkSlateGrey'), textposition='top center')
             fig.update_coloraxes(showscale=False)
+            fig.update_traces(marker=dict(size=5, color='DarkSlateGrey'), textposition='top center')
+            
             st.plotly_chart(fig, use_container_width=True)
             
             result = result.drop(columns=['origin'])
@@ -125,20 +108,8 @@ elif add_selectbox == 'Top five used plane models':
             result = ex.top_five_planes(airport)
         
             result_copy = result.copy()
-            result_copy.columns = ['Type', 'Manufacturer', 'Model', 'Number of engines', 'Seats', 'Speed', 'Engine', 'Number of flights']
+            result_copy.columns = ['Manufacturer', 'Model', 'Number of engines', 'Seats', 'Speed', 'Engine', 'Number of flights']
             st.dataframe(result_copy.set_index(result_copy.columns[0]), use_container_width=True)
-        # cols = st.columns(3, gap = 'small')
-        # with cols[0]:
-        #     model = st.radio('Select a model:', set(result['model']))
-        #     model_row = result.loc[result['model'] == model]
-        # with cols[1]:
-        #     st.write('Type:',model_row['type'].iloc[0])
-        #     st.write('Number of engines:',model_row['engines'].iloc[0])
-        #     st.write('Engine:',model_row['engine'].iloc[0])
-        # with cols[2]:
-        #     st.write('Speed:',model_row['speed'].iloc[0])
-        #     st.write('Number of seats:',model_row['seats'].iloc[0])
-        #     st.write('Number of planes:',model_row['numPlanes'].iloc[0])
 
 elif add_selectbox == 'Top five popular airlines':
     st.header('Top FIVE most popular airlines of selected airport')
@@ -173,13 +144,12 @@ elif add_selectbox == 'Unique destinations':
     with c_1:
         EWR_numUnique_dest, JFK_numUnique_dest, LGA_numUnique_dest, fig = ex.printUniqueDestinations()
         
-        st.write(f'EWR has',len(EWR_numUnique_dest),f'unique destinations: {EWR_numUnique_dest}.')
-        st.write(f'JFK has',len(JFK_numUnique_dest),f'unique destinations: {JFK_numUnique_dest}.')
-        st.write(f'LGA has',len(LGA_numUnique_dest),f'unique destinations: {LGA_numUnique_dest}.')
+        st.write(f':blue[EWR] has',len(EWR_numUnique_dest),f'unique destinations: {', '.join(sorted(EWR_numUnique_dest))}.')
+        st.write(f':red[JFK] has',len(JFK_numUnique_dest),f'unique destinations: {', '.join(sorted(JFK_numUnique_dest))}.')
+        st.write(f':green[LGA] has',len(LGA_numUnique_dest),f'unique destinations: {', '.join(sorted(LGA_numUnique_dest))}.')
     
     c_2 = st.container(border=True)
         
     with c_2:
-     
         st.plotly_chart(fig, use_container_width=True)
             
