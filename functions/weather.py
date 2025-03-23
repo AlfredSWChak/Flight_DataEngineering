@@ -68,3 +68,28 @@ def getTimeHour_df(origin, time_hour_list):
     timeHour_df = timeHour_df[timeHour_df['origin'] == origin]
     
     return timeHour_df
+
+def count_direction(flights_df):
+    
+    angle_list = flights_df['angleBetween']
+    direction_list = []
+    
+    for angle in angle_list:
+        if angle >= 315 or (angle >=0 and angle <= 45) or (angle <= 0 and angle >= -45) or (angle >= -360 and angle <= -315):
+            direction_list.append('North')
+        elif (angle >= 225 and angle <= 315) or (angle <= -45 and angle >= -135):
+            direction_list.append('West')
+        elif (angle >= 135 and angle <= 225) or (angle <= -135 and angle >= -225):
+            direction_list.append('South')
+        elif (angle >= 45 and angle <= 135) or (angle <= -225 and angle >= -315):
+            direction_list.append('East')
+        else:
+            direction_list.append(None)
+    
+    flights_df['direction'] = direction_list
+    
+    # fig = px.histogram(flights_df, x='direction')
+    fig = px.pie(flights_df, values=flights_df['direction'].value_counts().values, names=flights_df['direction'].value_counts().index.tolist(), title='Proportions of cardinal directions of delay flights', color_discrete_sequence=px.colors.sequential.Aggrnyl)
+    
+    return fig
+    
