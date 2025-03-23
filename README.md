@@ -40,8 +40,13 @@ This project is part of a larger effort to monitor and analyze flight data, leve
 
 ### 1. 🛫 **Interactive Dashboard (Streamlit)**
 - **Multi-page Navigation:**
-  - 🏠 **Home**: Flights from NYC
-  - ℹ️ **General Information**: Airlines, Airports, Flights, Weather
+  - 🏠 **Home**:
+    - **Flights from NYC**
+  - ℹ️ **General Information**:
+    - **Airlines**
+    - **Airports**
+    - **Flights**
+    - **Weather**
   - ⁉️ **Delay Analysis**:
     - **Flight Statistics**
     - **Possible Causes**
