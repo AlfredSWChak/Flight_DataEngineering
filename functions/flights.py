@@ -72,6 +72,47 @@ def getNonDelayFlight(start_month, end_month, origin, dest):
     
     return non_delay_flights_df
 
+def nonDelayDotProduct(start_month, end_month, origin, dest):
+    query = f'SELECT dep_delay, origin, dest, tailnum, time_hour FROM flights WHERE origin = ? AND dest = ? AND dep_delay <= ? AND month >= ? AND month <= ?'
+    cursor.execute(query, [origin, dest, 0, start_month, end_month])
+    rows = cursor.fetchall()
+    delay_flights_df = pd.DataFrame(rows, columns = [x[0] for x in cursor.description])
+    
+    dest_direction = ex.getAngleBetween(origin, dest)
+    if (dest_direction < 0):
+        dest_direction = 360 + dest_direction
+    
+    temp = delay_flights_df.copy().drop_duplicates(subset=['time_hour'])
+    time_hour_list = delay_flights_df['time_hour'].tolist()
+    delay_weather_df = wthr.getTimeHour_df(origin, time_hour_list)
+    
+    temp = delay_flights_df.copy().drop_duplicates(subset=['tailnum'])
+    tailnum_list = delay_flights_df['tailnum'].tolist()   
+    planes_df = ex.getTailnumPlanes(tailnum_list)
+    
+    dot_product_list = []
+    angle_list = []
+        
+    for time_hour, tailnum in zip(delay_flights_df['time_hour'], delay_flights_df['tailnum']):
+        
+        if (time_hour in delay_weather_df['time_hour'].tolist()) and (tailnum in planes_df['tailnum'].tolist()):    
+            wind_direction_weather = delay_weather_df[delay_weather_df['time_hour'] == time_hour]['wind_dir'].iloc[0]
+            wind_speed_weather = delay_weather_df[delay_weather_df['time_hour'] == time_hour]['wind_speed'].iloc[0]
+            angle = dest_direction - wind_direction_weather   
+            magnitude = planes_df[planes_df['tailnum'] == tailnum]['speed'].iloc[0]
+            dot_product = abs(magnitude) * abs(wind_speed_weather) * math.cos(math.radians(abs(angle)))
+        
+            angle_list.append(angle)
+            dot_product_list.append(abs(dot_product))
+        else:
+            angle_list.append(0)
+            dot_product_list.append(0)
+        
+    new_delay_flights_df = delay_flights_df.assign(angleBetween = angle_list)
+    new_delay_flights_df = new_delay_flights_df.assign(dotProduct = dot_product_list)
+    
+    return new_delay_flights_df
+
 def delayDotProduct(start_month, end_month, origin, dest):
     
     query = f'SELECT dep_delay, origin, dest, tailnum, time_hour FROM flights WHERE origin = ? AND dest = ? AND dep_delay > ? AND month >= ? AND month <= ?'
@@ -86,8 +127,6 @@ def delayDotProduct(start_month, end_month, origin, dest):
     temp = delay_flights_df.copy().drop_duplicates(subset=['time_hour'])
     time_hour_list = delay_flights_df['time_hour'].tolist()
     delay_weather_df = wthr.getTimeHour_df(origin, time_hour_list)
-    
-    visib_fig = px.scatter(delay_weather_df, x='wind_speed', y='visib')
     
     temp = delay_flights_df.copy().drop_duplicates(subset=['tailnum'])
     tailnum_list = delay_flights_df['tailnum'].tolist()   
@@ -114,7 +153,10 @@ def delayDotProduct(start_month, end_month, origin, dest):
     new_delay_flights_df = delay_flights_df.assign(angleBetween = angle_list)
     new_delay_flights_df = new_delay_flights_df.assign(dotProduct = dot_product_list)
         
-    wind_fig = px.scatter_polar(new_delay_flights_df, r='dotProduct', theta='angleBetween')
+    wind_fig = px.scatter_polar()
+    wind_fig.add_scatterpolar(r=new_delay_flights_df['dotProduct'], theta=new_delay_flights_df['angleBetween'], mode='markers', marker_color='red')
+    # nonDelay_df = nonDelayDotProduct(start_month, end_month, origin, dest)
+    # wind_fig.add_scatterpolar(r=nonDelay_df['dotProduct'], theta=nonDelay_df['angleBetween'], mode='markers', marker_color='green')
     
     new_time_hour_list = getNonDelayFlight(start_month, end_month, origin, dest)['time_hour'].tolist()
     
@@ -129,10 +171,12 @@ def delayDotProduct(start_month, end_month, origin, dest):
     visib_fig.add_trace(go.Histogram(x=non_delay_weather_visib_list, marker_color='rgb(55, 83, 109)', name='Non-Delay'))
     visib_fig.update_layout(bargap=0.2, bargroupgap=0.1)
     
-    wind_fig.update_layout(title = f'Angle between flight direction and wind direction of delay flights')
-    visib_fig.update_layout(title = f'Visibility of flights')
+    direction_fig = wthr.count_direction(new_delay_flights_df)
     
-    return wind_fig, visib_fig, dest_direction, num_delay, num_non_delay
+    wind_fig.update_layout(title = f'Angle between flight direction and wind direction of delay flights')
+    visib_fig.update_layout(title = f'Visibility of all the flights ')
+    
+    return wind_fig, visib_fig, dest_direction, num_delay, num_non_delay, direction_fig
 
 def get_all_destinations(origin):
     query = f"SELECT DISTINCT dest FROM flights WHERE origin = ?"
